@@ -29,6 +29,7 @@ include '../backend/db_connect.php';
   <a href="../CoffeeMenu/HomeMenu.php">Coffee</a>
   <a href="../PastriesMenu/PastriesMenu.php">Pastries</a>
   <a href="../MealsMenu/Meals.php">Meals</a>
+  <a href="../SalesDashboard/Sales Report Page.html">Sales</a>
 </nav>
 
 <!-- Coffee Sections -->
