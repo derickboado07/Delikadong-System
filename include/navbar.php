@@ -17,7 +17,7 @@
       <i class="fa-solid fa-boxes-stacked"></i>
       <h6>Inventory</h6>
     </a>
-    <a href="../SalesDashboard/Sales Report Page.html" class="icon">
+    <a href="../SalesDashboard/SalesReportPage.php" class="icon">
       <i class="fa-solid fa-wallet"></i><h6>Sales</h6>
     </a>
     <a href="#" class="icons" id="signOutBtn">
