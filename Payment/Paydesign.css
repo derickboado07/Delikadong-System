@@ -1,0 +1,153 @@
+body {
+      font-family: Arial, sans-serif;
+      background: #ece6e2;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 2px solid #ccc;
+    }
+    .header img {
+      height: 50px;
+      margin-right: 10px;
+      border-radius: 50%;
+
+    }
+    .header h1 {
+      font-size: 22px;
+      margin: 0;
+      letter-spacing: 3px;
+    }
+
+    /* Main container */
+    .payment-container {
+      margin: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      display: grid;
+      grid-template-columns: 1fr 2fr 2fr;
+      gap: 15px;
+      padding: 15px;
+      height: 82%;
+    }
+
+    /* Payment Method */
+    .payment-method {
+      border-right: 1px solid #ddd;
+    }
+
+    .payment-method h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .payment-method a {
+      text-decoration: none;
+      color: black;
+      font-size: 16px;
+      width: 86%;
+    }
+
+    .method-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .method-btn:hover {
+      background: #e0e0e0;
+    }
+
+    /* E-Wallet Section */
+    .e-wallet h3 {
+      margin-bottom: 12px;
+    }
+
+    .e-wallet span{
+        color: gray;
+    } 
+    .wallet-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #ccc;
+      background: #f5fdfd;
+      padding: 12px;
+    }
+    .wallet-option img {
+      height: 70px;
+      width: 130px;
+      background-size: cover;
+    }
+
+    /* Payment Info */
+    .payment-info h4 {
+      margin: 5px 0;
+      font-size: 20px;
+    }
+    .payment-info p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    .discount-box {
+      margin: 10px 0;
+    }
+    .discount-box table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .discount-box td {
+      padding: 6px;
+      font-size: 14px;
+    }
+    .discount-box input {
+      margin-right: 5px;
+    }
+
+    /* QR Code Section */
+    .qr-section {
+      text-align: center;
+      margin-top: 50px;
+    }
+    .qr-section img.qr-code {
+      width: 220px;
+      margin:5px 0;
+      padding: 5px;
+    }
+    .qr-section h4{
+        font-size: 20px;
+    }
+    
+    .gcash-small {
+      height: 30px;
+      width: 60px;
+      vertical-align: middle;
+    }
+
+    .qr-section a{
+      color: rgb(255, 255, 255);
+      font-weight: bold;
+      text-decoration: none;
+      background-color: rgb(99, 99, 207);
+      padding: 10px;
+      border-radius: 30px;
+      margin-bottom: 20 px;
+    }
+
+    .qr-section a:hover{
+      background-color: rgb(48, 48, 208);
+      color: white;
+    }

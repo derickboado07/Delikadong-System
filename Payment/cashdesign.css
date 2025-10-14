@@ -1,0 +1,216 @@
+body {
+      font-family: Arial, sans-serif;
+      background: #ece6e2;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 2px solid #ccc;
+    }
+    .header img {
+      height: 50px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+    .header h1 {
+      font-size: 22px;
+      margin: 0;
+      letter-spacing: 3px;
+    }
+
+    /* Main container */
+    .payment-container {
+      margin: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      display: grid;
+      grid-template-columns: 1fr 2fr 2fr;
+      gap: 15px;
+      padding: 15px;
+      height: 80%;
+    }
+
+    /* Payment Method */
+    .payment-method {
+      border-right: 1px solid #ddd;
+    }
+    .payment-method h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    .payment-method a {
+      text-decoration: none;
+      color: black;
+      font-size: 16px;
+      width: 86%;
+    }
+    .method-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .method-btn:hover {
+      background: #e0e0e0;
+    }
+
+    /* E-Wallet Section */
+    .e-wallet h3 {
+      margin-bottom: 12px;
+      letter-spacing: 3px;
+    }
+    .e-wallet span {
+      color: gray;
+      font-size: 20px;
+      padding: 10px;
+    }
+    .wallet-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #ccc;
+      background: #f5fdfd;
+      padding: 25px;
+    }
+    .wallet-option img {
+      height: 70px;
+      width: 130px;
+      background-size: cover;
+    }
+
+    /* Payment Info */
+    .payment-info h4 {
+      margin: 5px 0;
+      font-size: 20px;
+    }
+    .payment-info p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    .discount-box {
+      margin: 10px 0;
+    }
+    .discount-box table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .discount-box td {
+      padding: 6px;
+      font-size: 14px;
+    }
+    .discount-box input {
+      margin-right: 5px;
+    }
+
+    /* Cash Section */
+    .cash-section {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      height: 50%;
+    }
+    .cash-section h4 {
+      color: gray;
+    }
+    .cash-section input {
+      padding: 5px;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    .cash-section button {
+      padding: 6px 12px;
+      background: rgb(118, 114, 114);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .cash-section button:hover {
+      background: black;
+    }
+    .cash-section a {
+      margin-top: 20px;
+      display: inline-block;
+      padding: 5px 10px;
+      background: gray;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      opacity: 0.5; /* disabled look */
+      pointer-events: none; /* disabled initially */
+    }
+
+    /* Form styles */
+#cashForm {
+  margin-top: 15px;
+}
+
+.confirm-btn {
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px 5px;
+}
+
+.confirm-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.list-orders {
+  padding: 10px 20px;
+  background: #2196F3;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  margin: 10px 5px;
+}
+
+.list-orders:hover {
+  background: #0b7dda;
+}
+
+.cash-section input[type="number"] {
+  padding: 8px;
+  font-size: 14px;
+  margin: 5px 0;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.cash-section button {
+  padding: 8px 16px;
+  background: #555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.cash-section button:hover {
+  background: #333;
+}

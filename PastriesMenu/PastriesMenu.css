@@ -1,0 +1,527 @@
+  /* ===== BASE STYLES ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+      height: 100vh;
+      background: url(../Images/another_bg.png) center / cover no-repeat fixed;
+      color: #333;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInMenu {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== LEFT NAVIGATION ===== */
+    .left-navbar {
+      width: 130px;
+      background: black;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 110px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
+    .left-navbar img {
+      position: absolute;
+      top: 10px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.3s forwards;
+    }
+
+    .icon, .icons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 45px;
+      cursor: pointer;
+      gap: 5px;
+      text-decoration: none;
+      color: white;
+      transition: color 0.3s ease;
+      opacity: 0;
+    }
+
+    .icon i, .icons i {
+      font-size: 20px;
+      color: #794a3a;
+      transition: color 0.3s ease;
+    }
+
+    .icon h6, .icons h6 {
+      margin: 0;
+      font-size: 12px;
+      color: white;
+      transition: color 0.3s ease;
+    }
+
+    .icons {
+      margin-top: auto;
+      margin-bottom: 20px;
+    }
+
+    .icon:hover i, .icons:hover i,
+    .icon:hover h6, .icons:hover h6 {
+      color: white;
+    }
+
+    .fade-in-icon {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .right-Menu {
+      margin-left: 130px;
+      flex: 1;
+      position: relative;
+      height: 100vh;
+      overflow-y: scroll; 
+      -ms-overflow-style: none;
+    }
+
+    .right-Menu::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pastries-header {
+      position: fixed;
+      top: 0;
+      left: 130px;
+      width: 220px;
+      padding: 20px;
+      background-color: black;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      z-index: 6;
+      letter-spacing: 10px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 15px;
+    }
+
+    /* ===== MENU SECTIONS ===== */
+    .pastries-type-title {
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      padding: 10px;
+      margin: 30px 0 20px 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 28px;
+      text-align: center;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+      z-index: 6;
+      letter-spacing: 5px;
+    }
+
+    .pastries-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 20px 20px;
+    }
+
+    .Option {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      width: 320px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      margin: 10px;
+      opacity: 0;
+    }
+
+    .Option:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .Option img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+      border-radius: 20px;
+    }
+
+    .Option:hover img {
+      transform: scale(1.1);
+    }
+
+    .pastries-overlay {
+      position: absolute;
+      bottom: 0;
+      text-align: center;
+      width: 100%;
+      padding: 15px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 5px;
+    }
+
+    .fade-in-Menu {
+      animation: fadeInMenu 1s ease-out forwards;
+    }
+
+    /* ===== TOP NAVIGATION ===== */
+    .top-category-links {
+      position: fixed;
+      background-color: rgb(0, 0, 0, 0.8);
+      padding: 25px;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      top: 0px;
+      right: 80px;
+      display: flex;
+      gap: 18px;
+      z-index: 20;
+      font-weight: bold;
+      font-size: 15px;
+      font-family: Arial, sans-serif;
+    }
+
+    .top-category-links a {
+      text-decoration: none;
+      color: #ffffff;
+      border-radius: 6px;
+      transition: color 0.3s;
+    }
+
+    .top-category-links a:hover {
+      color: #d68121;
+    }
+
+    /* ===== ORDER PANEL ===== */
+    .order-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 450px;
+      height: 100vh;
+      background: white;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.4s ease;
+      overflow-y: auto;
+    }
+
+    .order-panel.active {
+      transform: translateX(0);
+    }
+
+    .order-header {
+      background: white;
+      color: black;
+      border: 2px solid black;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .order-header h2 {
+      margin: 0;
+      font-size: 22px;
+      text-align: center;
+      flex: 1;
+      letter-spacing: 5px;
+    }
+
+    .close-order {
+      background: none;
+      border: none;
+      color: #000;
+      font-size: 24px;
+      cursor: pointer;
+      position: absolute;
+      right: 20px;
+    }
+
+    .order-content {
+      padding: 20px;
+      flex: 1;
+    }
+
+    .order-item {
+      display: flex;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      position: relative;
+      overflow: visible; 
+    }
+
+    .order-item-img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      background: linear-gradient(45deg, #794a3a, #c17857);
+    }
+
+    .order-details {
+      flex: 1;
+      padding: 10px;
+      position: relative;
+    }
+
+    .order-details h3 {
+      margin: 0 0 5px;
+      color: #6d3b2d;
+      font-size: 16px;
+    }
+
+    .price-info {
+      font-size: 12px;
+      margin-top: 5px;
+      color: #444;
+    }
+
+    .item-total {
+      font-weight: bold;
+      margin-top: 8px;
+      color: #4d2e1d;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .remove-btn:hover {
+      background-color: #000000;
+      color: white;
+    }
+
+    .final-total {
+      border-top: 2px solid black;
+      margin-top: 20px;
+      padding-top: 10px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .confirm-btn {
+      display: block;
+      margin: 15px auto 0;
+      background: #6d3b2d;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+      width: 80%;
+    }
+
+    .confirm-btn:hover {
+      background: #4d2e1d;
+    }
+
+    .empty-order {
+      text-align: center;
+      padding: 40px 20px;
+      color: #777;
+    }
+
+    /* ===== OVERLAY ===== */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    .order-logo {
+      width: 50px;
+      height: 50px;
+      margin-right: 30px;
+      border-radius: 50%;
+    }
+
+    /* ===== LOGOUT MODAL ===== */
+    .logout-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logout-modal-content {
+      background-color: white;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .logout-modal-header {
+      background-color: black;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logout-modal-header h3 {
+      margin: 0;
+      margin-left: 24%;
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+
+    .close-logout-modal {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .logout-modal-body {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .logout-modal-body p {
+      margin: 0;
+      font-size: 17px;
+      color: #333;
+    }
+
+    .logout-modal-footer {
+      padding: 15px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .confirm-logout {
+      background-color: #d9534f;
+      color: white;
+    }
+
+    .confirm-logout:hover {
+      background-color: #c9302c;
+    }
+
+    .cancel-logout {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+
+    .cancel-logout:hover {
+      background-color: #ddd;
+    }
+
+    /* Add these styles to your PastriesMenu.css file */
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 5px 0;
+}
+
+.quantity-btn {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  background: #f8f8f8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.quantity-btn:hover {
+  background: #e9e9e9;
+}
+
+.quantity-display {
+  width: 40px;
+  text-align: center;
+  font-weight: bold;
+}

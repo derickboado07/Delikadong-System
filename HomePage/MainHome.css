@@ -1,0 +1,256 @@
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.left-navbar {
+  width: 130px;
+  background-color: black;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 110px;
+  position: relative;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.left-navbar img {
+  position: absolute;
+  top: 10px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out 0.3s forwards;
+}
+
+.icon, .icons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 45px;
+  cursor: pointer;
+  gap: 5px;
+  text-decoration: none;
+  color: white;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.icon i, .icons i {
+  font-size: 20px;
+  color: #794a3a;
+  transition: color 0.3s ease;
+}
+
+.icon h6, .icons h6 {
+  margin: 0;
+  font-size: 12px;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.icons {
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+.icon:hover i, .icons:hover i,
+.icon:hover h6, .icons:hover h6 {
+  color: white;
+}
+
+.fade-in-icon {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+.right-Menu {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  background-image: url(../Images/another_bg.png);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  height: 100vh;
+  z-index: 2;
+}
+
+.right-Menu::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.Option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 250px;
+  border-radius: 60px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #794a3a;
+  background-color: #794a3a;
+  z-index: 2;
+  text-decoration: none;
+  color: white;
+  transition: transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  overflow: hidden;
+}
+
+.fade-in-option {
+  animation: fadeInOption 0.8s ease-out forwards;
+}
+
+@keyframes fadeInOption {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.Option:hover {
+  transform: scale(1.05);
+}
+
+.Option img {
+  width: 100%;
+  height: 350px;
+  border-radius: 60px;
+  object-fit: cover;
+  transition: all 0.3s cubic-bezier(0.25, 0.45, 0.45, 0.95);
+}
+
+.Option:hover img {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+.Option h1 {
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  padding: 15px 0;
+  color: white;
+  width: 100%;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 0 0 60px 60px;
+  transition: all 0.3s ease;
+}
+
+.Option:hover h1 {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Logout Confirmation Modal */
+.logout-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.logout-modal-content {
+  background-color: white;
+  border-radius: 10px;
+  width: 350px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.logout-modal-header {
+  background-color: black;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+
+.logout-modal-header h3 {
+  margin: 0;
+  margin-left: 24%;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.close-logout-modal {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.logout-modal-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.logout-modal-body p {
+  margin: 0;
+  font-size: 17px;
+  color: #333;
+}
+
+.logout-modal-footer {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  border-top: 1px solid #eee;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.confirm-logout {
+  background-color: #d9534f;
+  color: white;
+}
+
+.confirm-logout:hover {
+  background-color: #c9302c;
+}
+
+.cancel-logout {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.cancel-logout:hover {
+  background-color: #ddd;
+}
