@@ -1,14 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    const icons = document.querySelectorAll(".left-navbar .icon, .left-navbar .icons");
-    icons.forEach((icon, index) => {
-      setTimeout(() => {
-        icon.style.opacity = "1";
-        icon.style.animation = "fadeIn 0.5s ease-out forwards";
-      }, 100 + index * 100);
-    });
-  }, 500);
-
   const container = document.getElementById('ordersContainer');
   container.innerHTML = '<div class="loading-message">Loading orders...</div>';
 
@@ -21,12 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(data => {
       console.log('Orders data received:', data);
-      
+
       if (data.status === 'error') {
         container.innerHTML = '<div class="error-message">Error: ' + data.message + '</div>';
         return;
       }
-      
+
       if (!data.orders || data.orders.length === 0) {
         container.innerHTML = '<div class="no-orders">No orders found.</div>';
         return;
