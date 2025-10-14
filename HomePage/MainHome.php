@@ -8,32 +8,7 @@
   <link rel="stylesheet" href="MainHome.css" />
 </head>
 <body>
-<!-- This class navbar has a list of option for the Menu, Orders, Inventory, Sales -->
-  <!-- The alt purpose is when the user has low internet and can't load the image the alt title will be displayed instead -->
-  <div class="left-navbar">
-    <img src="../Images/Icon.png" alt="Logo" />
-
-    <a href="../HomePage/MainHome.php" class="icon">
-      <i class="fa-solid fa-house"></i>
-      <h6>Home</h6>
-    </a>
-    <a href="../CoffeeMenu/HomeMenu.php" class="icon">
-      <i class="fa-solid fa-mug-saucer"></i>
-      <h6>Menu</h6>
-    </a>
-    <a href="../List-Orders/Orderlist.php" class="icon">
-      <i class="fa-solid fa-list"></i>
-      <h6>Orders</h6>
-    </a>
-    <a href="../Inventory/Inventory.php" class="icon">
-      <i class="fa-solid fa-boxes-stacked"></i>
-      <h6>Inventory</h6>
-    </a>
-    <a href="#" class="icons" id="signOutBtn">
-      <i class="fa-solid fa-arrow-right-from-bracket"></i>
-      <h6>Sign-Out</h6>
-    </a>
-  </div>
+<?php include '../include/navbar.php'; ?>
 <!-- In the right side of the page has 4 types of menu which is coffee, pastries, drinks, meals-->
  <!-- The alt purpose is when the user has low internet and can't load the image the alt title will be displayed instead -->
   <div class="right-Menu">
