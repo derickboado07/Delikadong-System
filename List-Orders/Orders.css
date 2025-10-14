@@ -76,6 +76,94 @@
     display: none;
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+    .left-navbar {
+        width: 60px;
+        padding-top: 80px;
+    }
+
+    .left-navbar img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .icon i, .icons i {
+        font-size: 18px;
+    }
+
+    .icon h6, .icons h6 {
+        font-size: 10px;
+    }
+
+    .right-Menu {
+        margin-left: 60px;
+    }
+
+    .orders-header {
+        padding: 10px;
+    }
+
+    .orders-header h1 {
+        font-size: 18px;
+    }
+
+    .orders-container {
+        padding: 15px;
+    }
+
+    .order-card {
+        padding: 15px;
+    }
+
+    .order-item {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .left-navbar {
+        display: none; /* Hide navbar on very small screens */
+    }
+
+    .right-Menu {
+        margin-left: 0;
+    }
+
+    .orders-header {
+        padding: 10px 15px;
+    }
+
+    .orders-header h1 {
+        font-size: 16px;
+    }
+
+    .orders-container {
+        padding: 10px;
+    }
+
+    .order-card {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .order-header strong {
+        font-size: 1.1em;
+    }
+
+    .order-total span {
+        font-size: 1em;
+    }
+
+    .item-name {
+        font-size: 1em;
+    }
+
+    .item-price {
+        font-size: 0.9em;
+    }
+}
+
 .orders-header {
     display: flex;
     align-items: center;

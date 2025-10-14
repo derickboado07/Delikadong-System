@@ -242,3 +242,67 @@ to { opacity: 1; }
 .cancel-logout:hover {
   background-color: #ddd;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .left-navbar {
+    width: 60px;
+    padding-top: 80px;
+  }
+
+  .left-navbar img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .icon i, .icons i {
+    font-size: 18px;
+  }
+
+  .icon h6, .icons h6 {
+    font-size: 10px;
+  }
+
+  .right-Menu {
+    margin-left: 60px;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .Option {
+    width: 200px;
+  }
+
+  .Option img {
+    height: 250px;
+  }
+
+  .Option h1 {
+    font-size: 1.1rem;
+    padding: 10px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-navbar {
+    display: none; /* Hide navbar on very small screens, could add hamburger menu later */
+  }
+
+  .right-Menu {
+    margin-left: 0;
+    padding: 10px;
+  }
+
+  .Option {
+    width: 150px;
+  }
+
+  .Option img {
+    height: 200px;
+  }
+
+  .Option h1 {
+    font-size: 1rem;
+  }
+}

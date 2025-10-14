@@ -24,10 +24,7 @@
       <img src="../Images/OIP.png" alt="Meals" />
       <h1>Meals</h1>
     </a>
-    <a href="../SalesDashboard/Sales Report Page.html" class="Option">
-      <img src="../Images/sales_icon.png" alt="Sales" />
-      <h1>Sales</h1>
-    </a>
+
   </div>
 
   <!-- Logout Confirmation Modal -->

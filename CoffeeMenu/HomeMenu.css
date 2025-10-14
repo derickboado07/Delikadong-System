@@ -693,6 +693,152 @@ display: block;
   background-color: #ddd;
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .left-navbar {
+    width: 60px;
+    padding-top: 80px;
+  }
+
+  .left-navbar img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .icon i, .icons i {
+    font-size: 18px;
+  }
+
+  .icon h6, .icons h6 {
+    font-size: 10px;
+  }
+
+  .right-Menu {
+    margin-left: 60px;
+  }
+
+  .coffee-header {
+    left: 60px;
+    width: 150px;
+    font-size: 18px;
+    letter-spacing: 5px;
+  }
+
+  .coffee-type-title {
+    width: 60%;
+    font-size: 20px;
+    letter-spacing: 3px;
+  }
+
+  .coffee-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 15px;
+  }
+
+  .Option {
+    width: 250px;
+  }
+
+  .coffee-overlay {
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+
+  .top-category-links {
+    right: 60px;
+    padding: 15px;
+    gap: 12px;
+    font-size: 12px;
+  }
+
+  .top-right-menu {
+    right: 10px;
+  }
+
+  .order-panel {
+    width: 350px;
+  }
+
+  .order-header h2 {
+    font-size: 18px;
+    letter-spacing: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-navbar {
+    display: none; /* Hide navbar on very small screens */
+  }
+
+  .right-Menu {
+    margin-left: 0;
+  }
+
+  .coffee-header {
+    left: 0;
+    width: 120px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+
+  .coffee-type-title {
+    width: 80%;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+
+  .coffee-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 0 10px;
+  }
+
+  .Option {
+    width: 200px;
+  }
+
+  .coffee-overlay {
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px;
+  }
+
+  .top-category-links {
+    right: 10px;
+    padding: 10px;
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .order-panel {
+    width: 100%;
+  }
+
+  .order-header h2 {
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+
+  .order-item {
+    flex-direction: column;
+  }
+
+  .order-item-img {
+    width: 100%;
+    height: 150px;
+  }
+
+  .dropdowns {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dropdowns select {
+    min-width: 100%;
+  }
+}
+
 /* Add these styles to your CSS file */
 
 .quantity-controls {
