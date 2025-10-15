@@ -330,8 +330,8 @@
       }
     });
 
-    // Load initial data on page load
-    document.addEventListener('DOMContentLoaded', async () => {
+    // Function to refresh all dashboard data
+    async function refreshDashboardData() {
       // Fetch all data without filters
       const salesData = await fetchSalesData();
       const productData = await fetchProductPerformance();
@@ -347,6 +347,14 @@
       updateRecentOrders(ordersData);
       updateDailySalesChart(dailyTrendsData);
       updateMonthlySalesChart(monthlyTrendsData);
+    }
+
+    // Load initial data on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      await refreshDashboardData();
+
+      // Set up real-time updates every 30 seconds
+      setInterval(refreshDashboardData, 30000);
     });
 
     // Function to fetch daily sales trends data

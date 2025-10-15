@@ -107,7 +107,7 @@ if (confirmBtn) {
 
         console.log('Sending order data:', JSON.stringify(orderData, null, 2));
 
-        const res = await fetch("/AratPOLEA/backend/save_order.php", {
+        const res = await fetch("../backend/save_order.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(orderData)
@@ -121,9 +121,9 @@ if (confirmBtn) {
           localStorage.removeItem("currentCart");
           orderItems = [];
           renderOrderItems();
-          updateOrderTotal(); 
+          updateOrderTotal();
           closeOrderPanel();
-          
+
           // FIXED: Properly redirect with order_id
           const orderId = data.order_id;
           if (orderId) {
