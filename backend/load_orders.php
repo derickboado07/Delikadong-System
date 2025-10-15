@@ -7,10 +7,10 @@ error_log("=== LOAD ORDERS START ===");
 
 // UPDATED: Remove image from query
 $result = $conn->query("
-    SELECT 
+    SELECT
         o.id as order_id,
         o.staff_name,
-        o.order_status, 
+        o.order_status,
         o.subtotal,
         o.discount_type,
         o.discount_amount,
@@ -32,7 +32,8 @@ $result = $conn->query("
         oi.total as item_total
     FROM orders o
     LEFT JOIN order_items oi ON o.id = oi.order_id
-    WHERE o.payment_status = 'paid' 
+    WHERE o.payment_status = 'paid'
+    AND (o.order_status IS NULL OR o.order_status != 'completed')
     ORDER BY o.created_at DESC, oi.id ASC
 ");
 

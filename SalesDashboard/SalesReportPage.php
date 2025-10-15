@@ -188,10 +188,13 @@
     // Function to fetch recent orders data
     async function fetchRecentOrders() {
       try {
-        const response = await fetch('../backend/fetch_recent_orders.php');
+        console.log('Fetching recent orders...');
+        const response = await fetch('../backend/fetch_recent_orders.php?limit=12');
         const result = await response.json();
+        console.log('Recent orders response:', result);
 
         if (result.status === 'success') {
+          console.log('Recent orders data:', result.data);
           return result.data;
         } else {
           console.error('Error fetching recent orders:', result.message);
@@ -208,10 +211,10 @@
       if (data.length > 0) {
         // Use the most recent data (first in array since ordered by date DESC)
         const latestData = data[0];
-        document.getElementById("grossSales").innerText = "₱" + parseFloat(latestData.gross_sales).toLocaleString();
-        document.getElementById("ordersToday").innerText = latestData.orders_today + " Orders";
-        document.getElementById("netIncome").innerText = "₱" + parseFloat(latestData.net_income).toLocaleString();
-        document.getElementById("topProduct").innerHTML = '<i class="fa-solid fa-star"></i> ' + latestData.top_product;
+        document.getElementById("grossSales").innerText = "₱" + parseFloat(latestData.gross_sales || 0).toLocaleString();
+        document.getElementById("ordersToday").innerText = (latestData.orders_today || 0) + " Orders";
+        document.getElementById("netIncome").innerText = "₱" + parseFloat(latestData.net_income || 0).toLocaleString();
+        document.getElementById("topProduct").innerHTML = '<i class="fa-solid fa-star"></i> ' + (latestData.top_product || 'N/A');
       } else {
         // Reset to default values if no data
         document.getElementById("grossSales").innerText = "₱0";
@@ -281,12 +284,18 @@
 
     // Function to update recent orders table
     function updateRecentOrders(data) {
+      console.log('updateRecentOrders called with data:', data);
       const tableBody = document.querySelector('.orders-table tbody');
-      if (!tableBody) return;
+      console.log('Table body found:', tableBody);
+      if (!tableBody) {
+        console.error('Could not find .orders-table tbody element');
+        return;
+      }
 
       tableBody.innerHTML = '';
 
       if (data.length > 0) {
+        console.log('Processing', data.length, 'orders');
         data.forEach(order => {
           const row = document.createElement('tr');
           row.innerHTML = `
@@ -296,7 +305,9 @@
           `;
           tableBody.appendChild(row);
         });
+        console.log('Orders added to table');
       } else {
+        console.log('No orders data, showing empty message');
         const row = document.createElement('tr');
         row.innerHTML = '<td colspan="3">No orders available</td>';
         tableBody.appendChild(row);
@@ -332,21 +343,25 @@
 
     // Function to refresh all dashboard data
     async function refreshDashboardData() {
-      // Fetch all data without filters
-      const salesData = await fetchSalesData();
-      const productData = await fetchProductPerformance();
-      const paymentData = await fetchPaymentBreakdown();
-      const ordersData = await fetchRecentOrders();
-      const dailyTrendsData = await fetchDailySalesTrends();
-      const monthlyTrendsData = await fetchMonthlySalesTrends();
+      try {
+        // Fetch all data without filters
+        const salesData = await fetchSalesData();
+        const productData = await fetchProductPerformance();
+        const paymentData = await fetchPaymentBreakdown();
+        const ordersData = await fetchRecentOrders();
+        const dailyTrendsData = await fetchDailySalesTrends();
+        const monthlyTrendsData = await fetchMonthlySalesTrends();
 
-      // Update all sections
-      updateDashboard(salesData);
-      updateProductPerformance(productData);
-      updatePaymentBreakdown(paymentData);
-      updateRecentOrders(ordersData);
-      updateDailySalesChart(dailyTrendsData);
-      updateMonthlySalesChart(monthlyTrendsData);
+        // Update all sections
+        updateDashboard(salesData);
+        updateProductPerformance(productData);
+        updatePaymentBreakdown(paymentData);
+        updateRecentOrders(ordersData);
+        updateDailySalesChart(dailyTrendsData);
+        updateMonthlySalesChart(monthlyTrendsData);
+      } catch (error) {
+        console.error('Error refreshing dashboard data:', error);
+      }
     }
 
     // Load initial data on page load
@@ -355,6 +370,22 @@
 
       // Set up real-time updates every 30 seconds
       setInterval(refreshDashboardData, 30000);
+
+      // Listen for real-time updates from order completion (cross-tab)
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'dashboardRefresh') {
+          console.log('Dashboard refresh triggered by order completion');
+          refreshDashboardData();
+        }
+      });
+
+      // Also refresh when page becomes visible (same-tab navigation)
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+          console.log('Dashboard tab became visible, refreshing data');
+          refreshDashboardData();
+        }
+      });
     });
 
     // Function to fetch daily sales trends data

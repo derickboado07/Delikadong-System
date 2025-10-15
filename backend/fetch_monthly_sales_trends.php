@@ -1,10 +1,17 @@
 <?php
 header('Content-Type: application/json');
-include 'db_sales_connect.php';
+include 'db_connect.php';
 
-$query = "SELECT month, year, sales FROM monthly_sales_trends ORDER BY year ASC, FIELD(month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec') ASC";
+$query = "SELECT
+    DATE_FORMAT(o.created_at, '%b') as month,
+    YEAR(o.created_at) as year,
+    SUM(o.total_amount) as sales
+FROM orders o
+WHERE o.payment_status = 'paid'
+GROUP BY YEAR(o.created_at), MONTH(o.created_at), DATE_FORMAT(o.created_at, '%b')
+ORDER BY YEAR(o.created_at) ASC, MONTH(o.created_at) ASC";
 
-$result = $conn_sales->query($query);
+$result = $conn->query($query);
 
 if ($result) {
     $data = [];
@@ -13,8 +20,8 @@ if ($result) {
     }
     echo json_encode(["status" => "success", "data" => $data]);
 } else {
-    echo json_encode(["status" => "error", "message" => "Query failed: " . $conn_sales->error]);
+    echo json_encode(["status" => "error", "message" => "Query failed: " . $conn->error]);
 }
 
-$conn_sales->close();
+$conn->close();
 ?>

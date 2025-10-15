@@ -185,15 +185,30 @@ function markOrderDone(orderId) {
         fetch('../backend/delete_order.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 order_id: orderId
             })
         })
         .then(response => response.json())
         .then(result => {
             if (result.status === 'success') {
-                alert("Order completed!");
-                location.reload();
+                alert("Order completed! Data will now appear in Sales Dashboard.");
+
+                // Trigger real-time update for Sales Dashboard
+                localStorage.setItem('dashboardRefresh', Date.now().toString());
+
+                // Remove the completed order from the list
+                const orderCard = document.querySelector(`[data-id="${orderId}"]`).closest('.order-card');
+                if (orderCard) {
+                    orderCard.remove();
+                }
+
+                // Check if no orders left
+                const container = document.getElementById('ordersContainer');
+                const remainingCards = container.querySelectorAll('.order-card');
+                if (remainingCards.length === 0) {
+                    container.innerHTML = '<div class="no-orders">No pending orders to complete.</div>';
+                }
             } else {
                 alert("Error: " + result.message);
             }

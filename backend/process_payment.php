@@ -87,15 +87,14 @@ try {
     }
 
     // Update order with payment information
-    $update_sql = "UPDATE orders SET 
-        payment_method = ?, 
-        discount_type = ?, 
-        discount_amount = ?, 
-        total_amount = ?, 
-        cash_amount = ?, 
-        change_amount = ?, 
-        payment_status = 'paid',
-        order_status = 'completed'
+    $update_sql = "UPDATE orders SET
+        payment_method = ?,
+        discount_type = ?,
+        discount_amount = ?,
+        total_amount = ?,
+        cash_amount = ?,
+        change_amount = ?,
+        payment_status = 'paid'
         WHERE id = ?";
     
     $update_stmt = $conn->prepare($update_sql);
