@@ -51,7 +51,7 @@ function renderOrders(orders, container) {
                 </div>
                 <div class="order-total">
                     <span>Total: ₱${parseFloat(order.total_amount || 0).toFixed(2)}</span><br>
-                    <small class="payment-method">${order.payment_method || 'Cash'}</small>
+                    <small class="payment-method">${getPaymentMethodDisplay(order.payment_method)}</small>
                 </div>
             </div>
             
@@ -163,6 +163,30 @@ function formatAddonsExtras(data) {
         console.error('Error formatting addons/extras:', e, data);
         return 'None';
     }
+}
+
+function getPaymentMethodDisplay(paymentMethod) {
+    if (!paymentMethod) return 'Cash';
+
+    const lowerMethod = paymentMethod.toLowerCase();
+
+    // Handle GCash with reference number (e.g., "GCash (TEST123)")
+    if (lowerMethod.startsWith('gcash')) {
+        return 'GCash';
+    }
+
+    // Handle QRPH
+    if (lowerMethod === 'qrph') {
+        return 'QRPH';
+    }
+
+    // Handle Cash
+    if (lowerMethod === 'cash') {
+        return 'Cash';
+    }
+
+    // Default: capitalize first letter
+    return paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1);
 }
 
 function formatDate(dateString) {

@@ -94,6 +94,11 @@ body {
     }
 
     /* Payment Info */
+    .payment-info {
+      overflow-y: auto;
+      height: calc(100vh - 200px);
+      max-height: calc(100vh - 200px);
+    }
     .payment-info h4 {
       margin: 5px 0;
       font-size: 20px;

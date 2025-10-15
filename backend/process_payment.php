@@ -80,11 +80,8 @@ try {
     
     error_log("Found order in DB: " . print_r($order, true));
 
-    // Store reference number in payment_method field
+    // Store standardized payment method
     $payment_method_display = $payment_method;
-    if ($payment_method === 'gcash' && $reference_number) {
-        $payment_method_display = 'GCash (' . $reference_number . ')';
-    }
 
     // Update order with payment information
     $update_sql = "UPDATE orders SET

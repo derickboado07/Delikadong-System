@@ -9,17 +9,23 @@ window.onload = function () {
   // Get order data from hidden fields
   const orderIds = JSON.parse(document.getElementById('orderIds').value);
   const orderTotal = parseFloat(document.getElementById('orderTotal').value);
-  
-  let numericTotal = orderTotal || 0;
+
+  let subtotal = orderTotal || 0;
+  let vatAmount = subtotal * 0.12;
+  let numericTotal = subtotal + vatAmount; // Total with VAT
   let finalTotal = numericTotal;
   let discountValue = 0;
   let discountType = 'none';
 
   // Set base totals
+  const subtotalEl = document.getElementById("subtotal");
+  const vatAmountEl = document.getElementById("vatAmount");
   const totalPayEl = document.getElementById("totalPay");
   const finalPayEl = document.getElementById("finalPay");
   const finalPayCashEl = document.getElementById("finalPayCash");
 
+  if (subtotalEl) subtotalEl.innerText = "₱" + subtotal.toFixed(2);
+  if (vatAmountEl) vatAmountEl.innerText = "₱" + vatAmount.toFixed(2);
   if (totalPayEl) totalPayEl.innerText = "₱" + numericTotal.toFixed(2);
   if (finalPayEl) finalPayEl.innerText = "₱" + numericTotal.toFixed(2);
   if (finalPayCashEl) finalPayCashEl.innerText = "₱" + numericTotal.toFixed(2);
@@ -39,7 +45,7 @@ window.onload = function () {
         discountValue = numericTotal * 0.20;
       } else if (document.querySelector('input[value="student"]')?.checked) {
         discountType = 'student';
-        discountValue = numericTotal * 0.10;
+        discountValue = numericTotal * 0.20;
       }
 
       // Calculate final total
@@ -47,8 +53,8 @@ window.onload = function () {
 
       // Update UI
       if (discountInfoEl) {
-        discountInfoEl.innerText = discountType === 'none' ? 'None' : 
-          (discountType === 'senior' ? 'Senior Citizen 20%' : 'Student 10%');
+        discountInfoEl.innerText = discountType === 'none' ? 'None' :
+          (discountType === 'senior' ? 'Senior Citizen 20%' : 'Student 20%');
       }
       
       if (finalPayEl) finalPayEl.innerText = "₱" + finalTotal.toFixed(2);
@@ -168,6 +174,26 @@ window.onload = function () {
     });
   }
 
+  // --- Wallet Selection ---
+  const walletRadios = document.querySelectorAll('input[name="wallet"]');
+  walletRadios.forEach(radio => {
+    radio.addEventListener("change", () => {
+      const selectedWallet = document.querySelector('input[name="wallet"]:checked').value;
+
+      // Show/hide sections based on selection
+      const gcashSection = document.getElementById("gcashSection");
+      const qrphSection = document.getElementById("qrphSection");
+
+      if (selectedWallet === 'gcash') {
+        if (gcashSection) gcashSection.style.display = 'block';
+        if (qrphSection) qrphSection.style.display = 'none';
+      } else if (selectedWallet === 'qrph') {
+        if (gcashSection) gcashSection.style.display = 'none';
+        if (qrphSection) qrphSection.style.display = 'block';
+      }
+    });
+  });
+
   // --- GCash Payment Section ---
 const successfulPaymentLink = document.getElementById("successfulPaymentLink");
 const referenceInput = document.getElementById("referenceNumber");
@@ -178,7 +204,7 @@ if (successfulPaymentLink) {
 
       // Validate reference number
       const referenceNumber = referenceInput ? referenceInput.value.trim() : '';
-      
+
       if (!referenceNumber) {
           alert("Please enter the GCash reference number before confirming payment.");
           if (referenceInput) referenceInput.focus();
@@ -231,7 +257,69 @@ if (successfulPaymentLink) {
   });
 }
 
-  // NEW: Auto-format reference number input
+  // --- QRPH Payment Section ---
+const qrphSuccessfulPaymentLink = document.getElementById("qrphSuccessfulPaymentLink");
+const qrphReferenceInput = document.getElementById("qrphReferenceNumber");
+
+if (qrphSuccessfulPaymentLink) {
+  qrphSuccessfulPaymentLink.addEventListener("click", async function(e) {
+      e.preventDefault();
+
+      // Validate reference number
+      const referenceNumber = qrphReferenceInput ? qrphReferenceInput.value.trim() : '';
+
+      if (!referenceNumber) {
+          alert("Please enter the QRPH reference number before confirming payment.");
+          if (qrphReferenceInput) qrphReferenceInput.focus();
+          return;
+      }
+
+      if (referenceNumber.length < 5) {
+          alert("Please enter a valid QRPH reference number (at least 5 characters).");
+          if (qrphReferenceInput) qrphReferenceInput.focus();
+          return;
+      }
+
+      try {
+          const paymentData = {
+              order_id: orderIds[0], // Use the first order ID from array
+              payment_method: 'qrph',
+              discount_type: discountType,
+              discount_amount: discountValue,
+              final_total: finalTotal,
+              cash_amount: finalTotal,
+              change_amount: 0,
+              reference_number: referenceNumber
+          };
+
+          console.log("Sending QRPH payment data:", paymentData);
+
+          const response = await fetch('../backend/process_payment.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(paymentData)
+          });
+
+          const result = await response.json();
+          console.log("QRPH payment response:", result);
+
+          if (result.status === 'success') {
+              alert('✅ QRPH payment processed successfully!\nReference: ' + referenceNumber + '\nRedirecting to order list.');
+              window.location.href = "../List-Orders/Orderlist.php";
+          } else {
+              alert('❌ Error processing payment: ' + (result.message || 'Unknown error'));
+              if (result.debug) {
+                  console.error('Debug info:', result.debug);
+              }
+          }
+      } catch (error) {
+          console.error('QRPH payment error:', error);
+          alert('⚠️ Network error processing payment. Check console for details.');
+      }
+  });
+}
+
+  // NEW: Auto-format reference number inputs
   if (referenceInput) {
     referenceInput.addEventListener('input', function(e) {
       // Convert to uppercase and remove special characters
@@ -243,6 +331,21 @@ if (successfulPaymentLink) {
       if (e.key === 'Enter') {
         e.preventDefault();
         if (successfulPaymentLink) successfulPaymentLink.click();
+      }
+    });
+  }
+
+  if (qrphReferenceInput) {
+    qrphReferenceInput.addEventListener('input', function(e) {
+      // Convert to uppercase and remove special characters
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+
+    // Allow Enter key to submit
+    qrphReferenceInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (qrphSuccessfulPaymentLink) qrphSuccessfulPaymentLink.click();
       }
     });
   }

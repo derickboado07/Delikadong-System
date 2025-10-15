@@ -166,6 +166,11 @@ body {
   border-radius: 8px;
 }
 
+#dailyChart, #monthlyChart {
+  width: 100% !important;
+  height: 300px !important;
+}
+
 .filter input[type="date"] {
   padding: 5px 10px;
   border: 1px solid #aaa;
@@ -374,15 +379,16 @@ body {
 }
 
 .legend .dot {
-  width: 16px;
-  height: 16px;
-  margin-right: 10px;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
+  margin-right: 6px;
 }
 
-.dot.cash { background: #2e7d32; } /* darker green */
-.dot.gcash { background: #1565c0; } /* darker blue */
-.dot.qrph { background: #c62828; } /* darker red */
+.dot.cash { background: green; }
+.dot.gcash { background: blue; }
+.dot.qrph { background: red; }
 
 .orders-box {
   height: 470px; /* tall like screenshot */
@@ -410,26 +416,6 @@ body {
   font-size: 13px;
 }
 
-.legend {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  font-size: 16px;
-  margin-left: 0;
-}
-
-.legend .dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-right: 6px;
-}
-
-.dot.cash { background: green; }
-.dot.gcash { background: blue; }
-.dot.qrph { background: red; }
-
 .chart-container {
   display: flex;
   flex-direction: row;
@@ -441,6 +427,11 @@ body {
 #paymentChart {
   width: 120px !important;
   height: 120px !important;
+}
+
+/* Ensure charts are visible */
+#dailyChart, #monthlyChart, #paymentChart {
+  display: block !important;
 }
 
 /* Logout Modal Styles */

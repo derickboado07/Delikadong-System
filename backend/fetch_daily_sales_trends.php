@@ -5,6 +5,7 @@ include 'db_connect.php';
 $start_date = $_GET['start_date'] ?? null;
 $end_date = $_GET['end_date'] ?? null;
 
+// Get all days of the week with sales data
 $query = "SELECT
     DATE(o.created_at) as date,
     DAYNAME(o.created_at) as day_of_week,
@@ -23,15 +24,27 @@ ORDER BY DATE(o.created_at) ASC";
 
 $result = $conn->query($query);
 
+// Create a map of existing data
+$salesData = [];
 if ($result) {
-    $data = [];
     while ($row = $result->fetch_assoc()) {
-        $data[] = $row;
+        $salesData[$row['day_of_week']] = floatval($row['sales']);
     }
-    echo json_encode(["status" => "success", "data" => $data]);
-} else {
-    echo json_encode(["status" => "error", "message" => "Query failed: " . $conn->error]);
 }
+
+// Define all days of the week
+$daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+// Create complete dataset with 0 for missing days
+$data = [];
+foreach ($daysOfWeek as $day) {
+    $data[] = [
+        'day_of_week' => $day,
+        'sales' => $salesData[$day] ?? 0
+    ];
+}
+
+echo json_encode(["status" => "success", "data" => $data]);
 
 $conn->close();
 ?>

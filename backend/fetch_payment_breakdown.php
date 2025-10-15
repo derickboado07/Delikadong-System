@@ -8,6 +8,7 @@ $end_date = $_GET['end_date'] ?? null;
 $query = "SELECT
     CASE
         WHEN payment_method LIKE 'GCash%' THEN 'GCash'
+        WHEN payment_method = 'qrph' THEN 'QRPH'
         WHEN payment_method = 'Cash' THEN 'Cash'
         ELSE 'Other'
     END as payment_method,
@@ -26,6 +27,7 @@ if ($start_date && $end_date) {
 $query .= " GROUP BY
     CASE
         WHEN payment_method LIKE 'GCash%' THEN 'GCash'
+        WHEN payment_method = 'qrph' THEN 'QRPH'
         WHEN payment_method = 'Cash' THEN 'Cash'
         ELSE 'Other'
     END

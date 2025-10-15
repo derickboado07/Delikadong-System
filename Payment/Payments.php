@@ -43,9 +43,14 @@ $order_ids = [$order_id];
     <div class="e-wallet">
       <h3>E-Wallet</h3>
       <div class="wallet-option">
-        <input type="radio" name="wallet" checked>
+        <input type="radio" name="wallet" value="gcash" checked>
         <img src="../Images/GCash-Logo.jpg" alt="GCash">
         <span>GCash Payment</span>
+      </div>
+      <div class="wallet-option">
+        <input type="radio" name="wallet" value="qrph">
+        <img src="../Images/QRPH-Logo.png" alt="QRPH">
+        <span>QRPH Payment</span>
       </div>
     </div>
 
@@ -53,9 +58,11 @@ $order_ids = [$order_id];
     <div class="payment-info">
       <h4>Payment Information:</h4>
       <p><strong>Date:</strong> <span id="paymentDate"></span></p>
-      <p>Total Pay: <span id="totalPay">₱<?php echo number_format($order_total, 2); ?></span></p>
+      <p>Subtotal: <span id="subtotal">₱<?php echo number_format($order_total, 2); ?></span></p>
+      <p>VAT (12%): <span id="vatAmount">₱<?php echo number_format($order_total * 0.12, 2); ?></span></p>
+      <p>Total Pay: <span id="totalPay">₱<?php echo number_format($order_total * 1.12, 2); ?></span></p>
       <p>Discount: <span id="discountInfo">None</span></p>
-      <p><b>Final Total: <span id="finalPay">₱<?php echo number_format($order_total, 2); ?></span></b></p>
+      <p><b>Final Total: <span id="finalPay">₱<?php echo number_format($order_total * 1.12, 2); ?></span></b></p>
 
       <!-- Hidden fields for order data -->
       <input type="hidden" id="orderIds" value="<?php echo htmlspecialchars(json_encode([$order_id])); ?>">
@@ -70,7 +77,7 @@ $order_ids = [$order_id];
           </tr>
           <tr>
             <td><label><input type="radio" name="discount" value="student"> Student</label></td>
-            <td>10%</td>
+            <td>20%</td>
           </tr>
           <tr>
             <td><label><input type="radio" name="discount" value="none" checked> None</label></td>
@@ -78,26 +85,48 @@ $order_ids = [$order_id];
         </table>
       </div>
 
-      <div class="qr-section">
+      <div class="qr-section" id="gcashSection">
         <h4>Pay with <img src="../Images/GCash-Logo.jpg" alt="gcash" class="gcash-small"></h4>
         <p id="gcashName">Na***** F**</p>
         <img src="../Images/GCASH.jpg" alt="GCash QR Code" class="qr-code">
-        
+
         <div class="reference-section" style="margin: 15px 0;">
           <label for="referenceNumber" style="display: block; margin-bottom: 8px; font-weight: bold;">
             Enter GCash Reference Number:
           </label>
-          <input type="text" 
-                 id="referenceNumber" 
-                 placeholder="e.g., GC1234567890" 
+          <input type="text"
+                 id="referenceNumber"
+                 placeholder="e.g., GC1234567890"
                  style="padding: 8px; width: 200px; border: 1px solid #ccc; border-radius: 4px;"
                  maxlength="20">
           <p style="font-size: 12px; color: #666; margin: 5px 0;">
             ⓘ After scanning QR, enter the reference number from GCash
           </p>
         </div>
-        
+
         <p><a href="#" id="successfulPaymentLink">Confirm Payment</a></p>
+      </div>
+
+      <div class="qr-section" id="qrphSection" style="display: none;">
+        <h4>Pay with <img src="../Images/QRPH-Logo.png" alt="qrph" class="gcash-small"></h4>
+        <p id="qrphName">QRPH User</p>
+        <img src="../Images/QRPH.jpg" alt="QRPH QR Code" class="qr-code">
+
+        <div class="reference-section" style="margin: 15px 0;">
+          <label for="qrphReferenceNumber" style="display: block; margin-bottom: 8px; font-weight: bold;">
+            Enter QRPH Reference Number:
+          </label>
+          <input type="text"
+                 id="qrphReferenceNumber"
+                 placeholder="e.g., QR1234567890"
+                 style="padding: 8px; width: 200px; border: 1px solid #ccc; border-radius: 4px;"
+                 maxlength="20">
+          <p style="font-size: 12px; color: #666; margin: 5px 0;">
+            ⓘ After scanning QR, enter the reference number from QRPH
+          </p>
+        </div>
+
+        <p><a href="#" id="qrphSuccessfulPaymentLink">Confirm Payment</a></p>
       </div>
     </div>
   </div>

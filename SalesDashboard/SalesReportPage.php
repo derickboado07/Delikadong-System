@@ -83,7 +83,7 @@
           <canvas id="paymentChart"></canvas>
           <div class="legend">
             <span><span class="dot cash"></span> Cash</span>
-            <span><span class="dot gcash"></span> Gcash</span>
+            <span><span class="dot gcash"></span> GCash</span>
             <span><span class="dot qrph"></span> QRPH</span>
           </div>
         </div>
@@ -250,7 +250,7 @@
 
     // Function to update payment breakdown chart
     function updatePaymentBreakdown(data) {
-      if (window.paymentChart) {
+      if (window.paymentChart && typeof window.paymentChart.destroy === 'function') {
         window.paymentChart.destroy();
       }
 
@@ -279,6 +279,10 @@
             }
           }
         });
+      } else {
+        // Clear the canvas if no data
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        window.paymentChart = null;
       }
     }
 
@@ -432,7 +436,7 @@
 
     // Function to update daily sales chart
     function updateDailySalesChart(data) {
-      if (window.dailyChart) {
+      if (window.dailyChart && typeof window.dailyChart.destroy === 'function') {
         window.dailyChart.destroy();
       }
 
@@ -449,18 +453,74 @@
             datasets: [{
               label: "Daily Sales",
               data: sales,
+              backgroundColor: "rgba(108, 229, 232, 0.8)",
               borderColor: "#6ce5e8",
-              backgroundColor: "#6ce5e8",
-              fill: true
+              borderWidth: 2,
+              borderRadius: 8,
+              borderSkipped: false,
+              hoverBackgroundColor: "rgba(108, 229, 232, 1)",
+              hoverBorderColor: "#4dd0d4"
             }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                callbacks: {
+                  label: function(context) {
+                    return '₱' + context.parsed.y.toLocaleString();
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: 'rgba(200, 200, 200, 0.3)'
+                },
+                ticks: {
+                  callback: function(value) {
+                    return '₱' + value.toLocaleString();
+                  },
+                  color: '#666'
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  color: '#666',
+                  font: {
+                    weight: 'bold'
+                  }
+                }
+              }
+            },
+            animation: {
+              duration: 1000,
+              easing: 'easeOutQuart'
+            }
           }
         });
+      } else {
+        // Clear the canvas if no data
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        window.dailyChart = null;
       }
     }
 
     // Function to update monthly sales chart
     function updateMonthlySalesChart(data) {
-      if (window.monthlyChart) {
+      if (window.monthlyChart && typeof window.monthlyChart.destroy === 'function') {
         window.monthlyChart.destroy();
       }
 
@@ -477,10 +537,68 @@
             datasets: [{
               label: "Monthly Sales",
               data: sales,
-              backgroundColor: "#6ce5e8"
+              backgroundColor: "rgba(108, 229, 232, 0.8)",
+              borderColor: "#6ce5e8",
+              borderWidth: 2,
+              borderRadius: 8,
+              borderSkipped: false,
+              hoverBackgroundColor: "rgba(108, 229, 232, 1)",
+              hoverBorderColor: "#4dd0d4"
             }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                callbacks: {
+                  label: function(context) {
+                    return '₱' + context.parsed.y.toLocaleString();
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: 'rgba(200, 200, 200, 0.3)'
+                },
+                ticks: {
+                  callback: function(value) {
+                    return '₱' + value.toLocaleString();
+                  },
+                  color: '#666'
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  color: '#666',
+                  font: {
+                    weight: 'bold'
+                  }
+                }
+              }
+            },
+            animation: {
+              duration: 1000,
+              easing: 'easeOutQuart'
+            }
           }
         });
+      } else {
+        // Clear the canvas if no data
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        window.monthlyChart = null;
       }
     }
 
