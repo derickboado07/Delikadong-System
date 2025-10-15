@@ -117,29 +117,72 @@
   <!-- Chart.js for graphs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Script for interactivity & dummy backend -->
+  <!-- Script for interactivity & backend integration -->
   <script>
-    // Dummy data (simulate database)
-    const salesData = {
-      "2025-09-10": { gross: 12450, orders: 56, net: 5546, top: "Iced Latte" },
-      "2025-09-09": { gross: 8450, orders: 34, net: 3520, top: "Cappuccino" }
-    };
+    // Function to fetch sales data from database
+    async function fetchSalesData(startDate = null, endDate = null) {
+      try {
+        let url = '../backend/fetch_sales_data.php';
+        const params = new URLSearchParams();
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        if (params.toString()) url += '?' + params.toString();
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          return result.data;
+        } else {
+          console.error('Error fetching data:', result.message);
+          return [];
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        return [];
+      }
+    }
+
+    // Function to update dashboard with data
+    function updateDashboard(data) {
+      if (data.length > 0) {
+        // Use the most recent data (first in array since ordered by date DESC)
+        const latestData = data[0];
+        document.getElementById("grossSales").innerText = "₱" + parseFloat(latestData.gross_sales).toLocaleString();
+        document.getElementById("ordersToday").innerText = latestData.orders_today + " Orders";
+        document.getElementById("netIncome").innerText = "₱" + parseFloat(latestData.net_income).toLocaleString();
+        document.getElementById("topProduct").innerHTML = '<i class="fa-solid fa-star"></i> ' + latestData.top_product;
+      } else {
+        // Reset to default values if no data
+        document.getElementById("grossSales").innerText = "₱0";
+        document.getElementById("ordersToday").innerText = "0 Orders";
+        document.getElementById("netIncome").innerText = "₱0";
+        document.getElementById("topProduct").innerHTML = '<i class="fa-solid fa-star"></i> N/A';
+      }
+    }
 
     // Apply filter button
-    document.getElementById("applyFilter").addEventListener("click", () => {
+    document.getElementById("applyFilter").addEventListener("click", async () => {
       const start = document.getElementById("startDate").value;
       const end = document.getElementById("endDate").value;
 
-      // Example: Use only the "end date" as today's filter
-      if (salesData[end]) {
-        const data = salesData[end];
-        document.getElementById("grossSales").innerText = "₱" + data.gross.toLocaleString();
-        document.getElementById("ordersToday").innerText = data.orders + " Orders";
-        document.getElementById("netIncome").innerText = "₱" + data.net.toLocaleString();
-        document.getElementById("topProduct").innerHTML = '<i class="fa-solid fa-star"></i> ' + data.top;
-      } else {
-        alert("No data found for " + end);
+      if (!end) {
+        alert("Please select an end date");
+        return;
       }
+
+      const data = await fetchSalesData(start, end);
+      updateDashboard(data);
+
+      if (data.length === 0) {
+        alert("No data found for the selected date range");
+      }
+    });
+
+    // Load initial data on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      const data = await fetchSalesData();
+      updateDashboard(data);
     });
 
     // Charts Example (dummy)
