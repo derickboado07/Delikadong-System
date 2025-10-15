@@ -32,6 +32,19 @@ error_log("Processing " . count($orders) . " items, Total: " . $total);
 $conn->begin_transaction();
 
 try {
+    // Ensure order_items has a menu_id column (nullable)
+    $dbNameResult = $conn->query("SELECT DATABASE() AS dbname");
+    $dbName = $dbNameResult->fetch_assoc()['dbname'];
+    $colCheckSql = "SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'order_items' AND COLUMN_NAME = 'menu_id'";
+    $colCheckStmt = $conn->prepare($colCheckSql);
+    $colCheckStmt->bind_param('s', $dbName);
+    $colCheckStmt->execute();
+    $colCnt = $colCheckStmt->get_result()->fetch_assoc();
+    $colCheckStmt->close();
+    if (intval($colCnt['cnt']) === 0) {
+        $conn->query("ALTER TABLE order_items ADD COLUMN menu_id INT NULL AFTER order_id");
+        error_log('Added menu_id column to order_items');
+    }
     // 1. Create main order record
     $order_stmt = $conn->prepare("INSERT INTO orders (staff_name, subtotal, total_amount, payment_status) VALUES (?, ?, ?, 'unpaid')");
     $staff_name = "Cashier";
@@ -47,14 +60,16 @@ try {
     
     error_log("✅ Created order with ID: " . $order_id);
     
-    // 2. Insert order items - REMOVED: image column
-    $item_stmt = $conn->prepare("INSERT INTO order_items (order_id, item_name, category, size, sugar_level, addons, extras, quantity, price, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    // 2. Insert order items - include menu_id if found by name
+    // We'll use a prepared statement with a subquery to find menu_id by name (case-insensitive). If not found, menu_id will be NULL.
+    $item_stmt = $conn->prepare("INSERT INTO order_items (order_id, menu_id, item_name, category, size, sugar_level, addons, extras, quantity, price, total) VALUES (?, (SELECT id FROM menu WHERE LOWER(name) = LOWER(?) LIMIT 1), ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
     if (!$item_stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     
     $successCount = 0;
+
     foreach ($orders as $index => $item) {
         $item_name = $item['name'] ?? 'Unknown Item';
         $category = $item['category'] ?? 'unknown';
@@ -68,12 +83,13 @@ try {
         
         error_log("📦 Inserting item $index: order_id=$order_id, name=$item_name, category=$category");
         
-        $item_stmt->bind_param("issssssidd", 
-            $order_id, $item_name, $category, $size, $sugar_level, $addons, $extras, $quantity, $price, $item_total);
+        $item_stmt->bind_param("issssssiddd", 
+            $order_id, $item_name, $item_name, $category, $size, $sugar_level, $addons, $extras, $quantity, $price, $item_total);
         
         if ($item_stmt->execute()) {
             $successCount++;
             error_log("✅ Successfully inserted item: " . $item_name);
+            // No inventory deduction here; inventory will be deducted when payment is processed
         } else {
             error_log("❌ Failed to insert item: " . $item_stmt->error);
             throw new Exception("Failed to insert item $item_name: " . $item_stmt->error);
