@@ -232,7 +232,7 @@
       tableBody.innerHTML = '';
 
       if (data.length > 0) {
-        data.forEach(product => {
+        data.slice(0, 6).forEach(product => {
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${product.product_name}</td>
