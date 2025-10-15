@@ -22,7 +22,6 @@ include '../backend/db_connect.php'; // ensure $conn = mysqli_connect(...);
   <a href="../CoffeeMenu/HomeMenu.php">Coffee</a>
   <a href="../PastriesMenu/PastriesMenu.php">Pastries</a>
   <a href="../MealsMenu/Meals.php">Meals</a>
-  <a href="../SalesDashboard/Sales Report Page.html">Sales</a>
 </nav>
 
 <!-- Pastries Section -->
