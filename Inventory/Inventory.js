@@ -4,22 +4,43 @@ let menuItems = [];
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    setupInventorySelector();
     loadInventoryData();
     loadMenuItems();
     setupEventListeners();
 });
 
+// Setup inventory type selector
+function setupInventorySelector() {
+    const selector = document.getElementById('inventoryType');
+    selector.addEventListener('change', function() {
+        const externalSection = document.getElementById('externalInventory');
+        const internalSection = document.getElementById('internalInventory');
+
+        if (this.value === 'external') {
+            externalSection.style.display = 'block';
+            internalSection.style.display = 'none';
+            loadInventoryData();
+        } else {
+            externalSection.style.display = 'none';
+            internalSection.style.display = 'block';
+            loadIngredients();
+        }
+    });
+}
+
 // Setup event listeners
 function setupEventListeners() {
     // Form submission
     document.getElementById('inventoryForm').addEventListener('submit', handleFormSubmit);
-    
+
     // Modal close on outside click
     window.addEventListener('click', function(event) {
         const inventoryModal = document.getElementById('inventoryModal');
         const quickUpdateModal = document.getElementById('quickUpdateModal');
         const confirmModal = document.getElementById('confirmModal');
-        
+        const ingredientModal = document.getElementById('ingredientModal');
+
         if (event.target === inventoryModal) {
             closeModal();
         }
@@ -29,30 +50,40 @@ function setupEventListeners() {
         if (event.target === confirmModal) {
             closeConfirmModal();
         }
+        if (event.target === ingredientModal) {
+            closeIngredientModal();
+        }
     });
-    
+
     // Enter key handling for stock inputs
     document.getElementById('addStockAmount').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             updateStock('add');
         }
     });
-    
+
     document.getElementById('removeStockAmount').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             updateStock('remove');
         }
     });
+
+    // Ingredient form
+    document.getElementById('ingredientForm').addEventListener('submit', handleIngredientFormSubmit);
+    const btnAddIngredient = document.getElementById('btnAddIngredient');
+    if (btnAddIngredient) {
+        btnAddIngredient.addEventListener('click', () => openIngredientModal('create'));
+    }
 }
 
 // Load inventory data from server
 async function loadInventoryData() {
     showLoadingSpinner(true);
-    
+
     try {
         const response = await fetch('../backend/inventory_crud.php?action=read');
         const data = await response.json();
-        
+
         if (data.success) {
             displayInventoryData(data.data);
         } else {
@@ -70,7 +101,7 @@ async function loadMenuItems() {
     try {
         const response = await fetch('../backend/inventory_crud.php?action=getMenuItems');
         const data = await response.json();
-        
+
         if (data.success) {
             menuItems = data.data;
             populateMenuSelect();
@@ -82,7 +113,6 @@ async function loadMenuItems() {
 
 // Populate menu select dropdown
 function populateMenuSelect() {
-    // Populate dropdown used for Create mode
     const dropdown = document.getElementById('menuSelectDropdown');
     dropdown.innerHTML = '<option value="">Choose a menu item...</option>';
 
@@ -98,7 +128,7 @@ function populateMenuSelect() {
 function displayInventoryData(data) {
     const tbody = document.getElementById('inventoryTableBody');
     tbody.innerHTML = '';
-    
+
     if (data.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -110,15 +140,14 @@ function displayInventoryData(data) {
         `;
         return;
     }
-    
+
     data.forEach(item => {
         const row = document.createElement('tr');
         row.className = 'table-row-enter';
-        
-        // Determine stock status
+
         let statusClass = 'status-in-stock';
         let statusText = 'In Stock';
-        
+
         if (item.stock_quantity === 0) {
             statusClass = 'status-out-of-stock';
             statusText = 'Out of Stock';
@@ -126,7 +155,7 @@ function displayInventoryData(data) {
             statusClass = 'status-low-stock';
             statusText = 'Low Stock';
         }
-        
+
         row.innerHTML = `
             <td>${item.id}</td>
             <td><strong>${item.menu_name}</strong></td>
@@ -149,7 +178,7 @@ function displayInventoryData(data) {
                 </div>
             </td>
         `;
-        
+
         tbody.appendChild(row);
     });
 }
@@ -166,21 +195,19 @@ function filterTable() {
     const filter = input.value.toLowerCase();
     const table = document.getElementById('inventoryTable');
     const rows = table.getElementsByTagName('tr');
-    
-    // Start from 1 to skip the header row
+
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         const cells = row.getElementsByTagName('td');
         let found = false;
-        
-        // Search through all cells except the actions column
+
         for (let j = 0; j < cells.length - 1; j++) {
             if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
                 found = true;
                 break;
             }
         }
-        
+
         row.style.display = found ? '' : 'none';
     }
 }
@@ -192,7 +219,6 @@ function openAddModal() {
     document.getElementById('submitText').textContent = 'Add Item';
     document.getElementById('inventoryForm').reset();
     document.getElementById('itemId').value = '';
-    // show dropdown for Create mode
     const dropdown = document.getElementById('menuSelectDropdown');
     const readonly = document.getElementById('menuSelectReadonly');
     const hidden = document.getElementById('menuId');
@@ -207,7 +233,6 @@ function openEditModal(id, menuId, stockQuantity) {
     document.getElementById('modalTitle').textContent = 'Edit Inventory Item';
     document.getElementById('submitText').textContent = 'Update Item';
     document.getElementById('itemId').value = id;
-    // show readonly input for Edit mode and set hidden id
     const dropdown = document.getElementById('menuSelectDropdown');
     const readonly = document.getElementById('menuSelectReadonly');
     const hidden = document.getElementById('menuId');
@@ -246,10 +271,8 @@ function closeQuickUpdateModal() {
 // Handle form submission
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
-    // Validate that menu_id is set (user must pick an existing product)
+
     const hidden = document.getElementById('menuId');
-    // If hidden is empty, try to read from dropdown (Create mode)
     if (!hidden.value) {
         const dropdown = document.getElementById('menuSelectDropdown');
         if (dropdown && dropdown.value) {
@@ -265,15 +288,15 @@ async function handleFormSubmit(e) {
     const formData = new FormData(e.target);
     const action = currentEditingId ? 'update' : 'create';
     formData.append('action', action);
-    
+
     try {
         const response = await fetch('../backend/inventory_crud.php', {
             method: 'POST',
             body: formData
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast(data.message, 'success');
             closeModal();
@@ -291,7 +314,7 @@ async function editItem(id) {
     try {
         const response = await fetch(`../backend/inventory_crud.php?action=read&id=${id}`);
         const data = await response.json();
-        
+
         if (data.success && data.data.length > 0) {
             const item = data.data[0];
             openEditModal(item.id, item.menu_id, item.stock_quantity);
@@ -307,22 +330,22 @@ async function editItem(id) {
 function deleteItem(id, name) {
     document.getElementById('confirmMessage').textContent = `Are you sure you want to delete "${name}" from inventory?`;
     document.getElementById('confirmModal').style.display = 'block';
-    
+
     document.getElementById('confirmBtn').onclick = async function() {
         closeConfirmModal();
-        
+
         try {
             const formData = new FormData();
             formData.append('action', 'delete');
             formData.append('id', id);
-            
+
             const response = await fetch('../backend/inventory_crud.php', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 showToast(data.message, 'success');
                 loadInventoryData();
@@ -339,29 +362,29 @@ function deleteItem(id, name) {
 async function updateStock(operation) {
     const modal = document.getElementById('quickUpdateModal');
     const itemId = modal.dataset.itemId;
-    const amount = operation === 'add' 
+    const amount = operation === 'add'
         ? parseInt(document.getElementById('addStockAmount').value)
         : parseInt(document.getElementById('removeStockAmount').value);
-    
+
     if (!amount || amount <= 0) {
         showToast('Please enter a valid amount', 'warning');
         return;
     }
-    
+
     try {
         const formData = new FormData();
         formData.append('action', 'quickUpdate');
         formData.append('id', itemId);
         formData.append('operation', operation);
         formData.append('amount', amount);
-        
+
         const response = await fetch('../backend/inventory_crud.php', {
             method: 'POST',
             body: formData
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast(data.message, 'success');
             closeQuickUpdateModal();
@@ -379,28 +402,197 @@ function closeConfirmModal() {
     document.getElementById('confirmModal').style.display = 'none';
 }
 
+// Ingredients functions
+async function api(action, data) {
+    const opts = { method: data ? 'POST' : 'GET', headers: {} };
+    if (data) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(data);
+    }
+    const url = '../backend/ingredients_crud.php?action=' + encodeURIComponent(action);
+    try {
+        const res = await fetch(url, opts);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+    } catch (err) {
+        console.error('API error', action, err);
+        return { status: 'error', message: err.message };
+    }
+}
+
+function showToastIngredients(message, type='success'){
+    let toast = document.getElementById('ingredients-toast');
+    if (!toast){
+        toast = document.createElement('div');
+        toast.id = 'ingredients-toast';
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.padding = '16px 20px';
+        toast.style.borderRadius = '12px';
+        toast.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+        toast.style.color = '#fff';
+        toast.style.zIndex = 9999;
+        toast.style.fontWeight = '500';
+        toast.style.fontSize = '14px';
+        toast.style.backdropFilter = 'blur(10px)';
+        toast.style.border = '1px solid rgba(255,255,255,0.2)';
+        toast.style.animation = 'slideInRight 0.3s ease';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.background = type === 'error' ? '#d9534f' : (type === 'warning' ? '#f0ad4e' : '#5cb85c');
+    toast.style.display = 'block';
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(()=>{ toast.style.display = 'none'; }, 3000);
+}
+
+function clearIngredientForm(){
+    document.getElementById('ingredientId').value = '';
+    document.getElementById('ingredientName').value = '';
+    document.getElementById('ingredientUnit').value = 'pcs';
+    document.getElementById('ingredientStock').value = '0';
+    document.getElementById('ingredientPrice').value = '0.00';
+}
+
+async function loadIngredients(){
+    const res = await api('list');
+    const tbody = document.querySelector('#ingredientsTable tbody');
+    tbody.innerHTML='';
+    if (res.status === 'ok' && res.data) {
+        res.data.forEach(it=>{
+            const price = parseFloat(it.price || 0).toFixed(2);
+            const stock = parseFloat(it.stock_quantity || 0);
+            let statusClass = 'status-in-stock';
+            let statusText = 'In Stock';
+            if (stock === 0) {
+                statusClass = 'status-out-of-stock';
+                statusText = 'Out of Stock';
+            } else if (stock <= 5) {
+                statusClass = 'status-low-stock';
+                statusText = 'Low Stock';
+            }
+            const lastUpdate = it.last_updated ? formatDateTime(it.last_updated) : 'Never';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${it.id}</td><td>${it.name}</td><td>${it.unit}</td><td>₱${price}</td><td><strong>${stock}</strong></td><td><span class="status-badge ${statusClass}">${statusText}</span></td><td>${lastUpdate}</td><td><div class="action-buttons"><button data-id="${it.id}" class="btn btn-primary btn-sm btn-edit" title="Edit"><i class="fas fa-edit"></i></button> <button data-id="${it.id}" class="btn btn-danger btn-sm btn-del" title="Delete"><i class="fas fa-trash"></i></button></div></td>`;
+            tbody.appendChild(tr);
+        });
+        if (res.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#666;">No ingredients yet. Click Add Ingredient to create one.</td></tr>';
+        }
+    }
+    else {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#c00;">Error loading ingredients (see console).</td></tr>';
+    }
+}
+
+function openIngredientModal(mode='create', data=null){
+    const modal = document.getElementById('ingredientModal');
+    const modalTitle = document.getElementById('modalTitleIngredient');
+    const inputId = document.getElementById('ingredientId');
+    const inputName = document.getElementById('ingredientName');
+    const inputUnit = document.getElementById('ingredientUnit');
+    const inputStock = document.getElementById('ingredientStock');
+    const inputPrice = document.getElementById('ingredientPrice');
+
+    modal.setAttribute('aria-hidden','false');
+    if (mode === 'create'){
+        modalTitle.textContent = 'Add Ingredient';
+        inputId.value=''; inputName.value=''; inputUnit.value='pcs'; inputStock.value='0'; inputPrice.value='0.00';
+    } else {
+        modalTitle.textContent = 'Edit Ingredient';
+        inputId.value = data.id; inputName.value = data.name; inputUnit.value = data.unit; inputStock.value = data.stock_quantity; inputPrice.value = parseFloat(data.price || 0).toFixed(2);
+    }
+    inputName.focus();
+}
+
+function closeIngredientModal(){
+    document.getElementById('ingredientModal').setAttribute('aria-hidden','true');
+}
+
+async function handleIngredientFormSubmit(e){
+    e.preventDefault();
+    const id = document.getElementById('ingredientId').value;
+    const payload = {
+        name: document.getElementById('ingredientName').value.trim(),
+        unit: document.getElementById('ingredientUnit').value.trim(),
+        stock_quantity: parseFloat(document.getElementById('ingredientStock').value) || 0,
+        price: parseFloat(document.getElementById('ingredientPrice').value) || 0
+    };
+    try {
+        if (id) {
+            payload.id = id;
+            const res = await api('update', payload);
+            if (res.status === 'ok') {
+                showToastIngredients('Ingredient updated successfully', 'success');
+            } else {
+                showToastIngredients('Failed to update ingredient', 'error');
+            }
+        } else {
+            const res = await api('create', payload);
+            if (res.status === 'ok') {
+                showToastIngredients('Ingredient added successfully', 'success');
+            } else {
+                showToastIngredients('Failed to add ingredient', 'error');
+            }
+        }
+        closeIngredientModal();
+        clearIngredientForm();
+        loadIngredients();
+    } catch (err) {
+        showToastIngredients('An error occurred', 'error');
+    }
+}
+
+// Handle ingredient table actions
+document.addEventListener('click', async (e) => {
+    const id = e.target.dataset.id;
+    if (!id) return;
+    if (e.target.classList.contains('btn-del')) {
+        if (!confirm('Delete ingredient?')) return;
+        try {
+            const res = await api('delete',{id});
+            if (res.status === 'ok') {
+                showToastIngredients('Ingredient deleted successfully', 'success');
+            } else {
+                showToastIngredients('Failed to delete ingredient', 'error');
+            }
+            loadIngredients();
+        } catch (err) {
+            showToastIngredients('An error occurred', 'error');
+        }
+    }
+    if (e.target.classList.contains('btn-edit')) {
+        const tr = e.target.closest('tr');
+        const id = tr.children[0].textContent.trim();
+        const name = tr.children[1].textContent.trim();
+        const unit = tr.children[2].textContent.trim();
+        const priceText = tr.children[3].textContent.trim();
+        const price = parseFloat(priceText.replace('₱', '')) || 0;
+        const stock = tr.children[4].textContent.trim();
+        openIngredientModal('edit',{ id, name, unit, stock_quantity: stock, price });
+    }
+});
+
 // Toast notification
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     const icon = toast.querySelector('.toast-icon');
     const messageElement = toast.querySelector('.toast-message');
-    
-    // Set icon based on type
+
     let iconClass = 'fas fa-check-circle';
     if (type === 'error') {
         iconClass = 'fas fa-exclamation-circle';
     } else if (type === 'warning') {
         iconClass = 'fas fa-exclamation-triangle';
     }
-    
+
     icon.className = 'toast-icon ' + iconClass;
     messageElement.textContent = message;
-    
-    // Remove existing type classes and add new one
+
     toast.className = 'toast ' + type;
     toast.style.display = 'block';
-    
-    // Auto-hide after 5 seconds
+
     setTimeout(() => {
         closeToast();
     }, 5000);
@@ -415,7 +607,7 @@ function closeToast() {
 function showLoadingSpinner(show) {
     const spinner = document.getElementById('loadingSpinner');
     const table = document.querySelector('.table-container');
-    
+
     if (show) {
         spinner.style.display = 'block';
         table.style.display = 'none';
@@ -425,32 +617,24 @@ function showLoadingSpinner(show) {
     }
 }
 
-// Refresh data
-function refreshData() {
-    loadInventoryData();
-    showToast('Data refreshed successfully', 'success');
-}
-
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    // Ctrl/Cmd + N for new item
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault();
         openAddModal();
     }
-    
-    // Escape to close modals
+
     if (e.key === 'Escape') {
         closeModal();
         closeQuickUpdateModal();
         closeConfirmModal();
+        closeIngredientModal();
         closeToast();
     }
-    
-    // Ctrl/Cmd + R for refresh
+
     if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
         e.preventDefault();
-        refreshData();
+        loadInventoryData();
     }
 });
 

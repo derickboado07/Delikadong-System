@@ -23,17 +23,13 @@
       <i class="fa-solid fa-boxes-stacked"></i>
       <h6>Ingredients</h6>
     </a> -->
-    <a href="../Inventory/IngredientsManager.php" class="icon">
-      <i class="fa-solid fa-boxes-stacked"></i>
-      <h6>Ingredients</h6>
-    </a>
     <a href="../Inventory/RecipeEditor.php" class="icon">
       <i class="fa-solid fa-receipt"></i>
       <h6>Recipe Editor</h6>
     </a>
-    <a href="../Inventory/InventoryManager.php" class="icon">
-      <i class="fa-solid fa-clipboard-list"></i>
-      <h6>Menu Stock</h6>
+    <a href="../Inventory/Inventory.php" class="icon">
+      <i class="fa-solid fa-warehouse"></i>
+      <h6>Inventory</h6>
     </a>
     <a href="../Inventory/InventoryReports.php" class="icon">
       <i class="fa-solid fa-chart-bar"></i>

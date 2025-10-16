@@ -10,6 +10,7 @@ $conn->query("CREATE TABLE IF NOT EXISTS ingredients (
     name VARCHAR(255) NOT NULL,
     unit VARCHAR(64) DEFAULT 'unit',
     stock_quantity DOUBLE NOT NULL DEFAULT 0,
+    price DECIMAL(10,2) DEFAULT 0.00,
     last_updated TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )");
 
@@ -37,8 +38,9 @@ try {
         $name = $input['name'] ?? '';
         $unit = $input['unit'] ?? 'unit';
         $stock = floatval($input['stock_quantity'] ?? 0);
-        $stmt = $conn->prepare("INSERT INTO ingredients (name, unit, stock_quantity) VALUES (?, ?, ?)");
-        $stmt->bind_param('ssd', $name, $unit, $stock);
+        $price = floatval($input['price'] ?? 0);
+        $stmt = $conn->prepare("INSERT INTO ingredients (name, unit, stock_quantity, price) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param('ssdd', $name, $unit, $stock, $price);
         $stmt->execute();
         echo json_encode(['status'=>'ok','id'=>$conn->insert_id]);
         exit;
@@ -50,9 +52,10 @@ try {
         $name = $input['name'] ?? '';
         $unit = $input['unit'] ?? 'unit';
         $stock = floatval($input['stock_quantity'] ?? 0);
-        // properly bind parameters: name (s), unit (s), stock (d), id (i)
-        $stmt = $conn->prepare("UPDATE ingredients SET name = ?, unit = ?, stock_quantity = ? WHERE id = ?");
-        $stmt->bind_param('ssdi', $name, $unit, $stock, $id);
+        $price = floatval($input['price'] ?? 0);
+        // properly bind parameters: name (s), unit (s), stock (d), price (d), id (i)
+        $stmt = $conn->prepare("UPDATE ingredients SET name = ?, unit = ?, stock_quantity = ?, price = ? WHERE id = ?");
+        $stmt->bind_param('ssddi', $name, $unit, $stock, $price, $id);
         $stmt->execute();
         echo json_encode(['status'=>'ok']);
         exit;
