@@ -7,60 +7,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
-.left-navbar {
-  width: 120px;
-  background-color: black;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 100px;
-  position: fixed;
-  height: 100vh;
-}
 
-.left-navbar img {
-  position: absolute;
-  top: 10px;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-}
-
-.icon, .icons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 30px;
-  text-decoration: none;
-  color: white;
-}
-
-.icon i, .icons i {
-  font-size: 20px;
-  color: #b87333;
-}
-
-.icon h6, .icons h6 {
-  margin: 5px 0 0;
-  font-size: 12px;
-}
-
-/* Hover effect for all icons including sign-out */
-.icon:hover i, .icon:hover h6,
-.icons:hover i, .icons:hover h6 {
-  color: #6ce5e8;
-  cursor: pointer;
-}
-
-.fade-in-icon {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-@keyframes fadeIn {
-from { opacity: 0; }
-to { opacity: 1; }
-}
 .right-Menu {
   margin-left: 120px;
   flex: 1;
@@ -245,24 +192,6 @@ to { opacity: 1; }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .left-navbar {
-    width: 60px;
-    padding-top: 80px;
-  }
-
-  .left-navbar img {
-    width: 50px;
-    height: 50px;
-  }
-
-  .icon i, .icons i {
-    font-size: 18px;
-  }
-
-  .icon h6, .icons h6 {
-    font-size: 10px;
-  }
-
   .right-Menu {
     margin-left: 60px;
     flex-direction: column;
@@ -285,10 +214,6 @@ to { opacity: 1; }
 }
 
 @media (max-width: 480px) {
-  .left-navbar {
-    display: none; /* Hide navbar on very small screens, could add hamburger menu later */
-  }
-
   .right-Menu {
     margin-left: 0;
     padding: 10px;

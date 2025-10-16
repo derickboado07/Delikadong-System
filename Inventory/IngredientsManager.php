@@ -6,8 +6,10 @@
   <title>Ingredients Manager</title>
   <link rel="stylesheet" href="../HomePage/MainHome.css?v=1.0">
   <link rel="stylesheet" href="IngredientsManager.css?v=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
+  
 <?php include '../include/navbar.php'; ?>
   <div class="right-Menu">
     <div class="content-wrapper">

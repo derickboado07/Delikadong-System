@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../Inventory/RecipeEditor.css?v=1.0" />
     <link rel="stylesheet" href="../HomePage/MainHome.css?v=1.0" />
     <script defer src="../Inventory/RecipeEditor.js?v=1.0"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   </head>
   <body>
     <?php include_once __DIR__ . '/../include/navbar.php'; ?>

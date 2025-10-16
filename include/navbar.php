@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="../include/navbar.css" />
+
 <div class="left-navbar">
     <img src="../Images/Icon.png" alt="Logo" />
 
