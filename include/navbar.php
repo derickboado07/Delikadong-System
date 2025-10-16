@@ -11,9 +11,9 @@
       <i class="fa-solid fa-mug-saucer"></i>
       <h6>Menu</h6>
     </a>
-    <a href="../Inventory/Products.php" class="icon">
-      <i class="fa-solid fa-tags"></i>
-      <h6>Products</h6>
+    <a href="http://localhost/smart-ordering/Inventory/ProductConfiguration.php" class="icon">
+      <i class="fa-solid fa-cogs"></i>
+      <h6>Product Configuration</h6>
     </a>
     <a href="../List-Orders/Orderlist.php" class="icon">
       <i class="fa-solid fa-list"></i>
@@ -23,10 +23,6 @@
       <i class="fa-solid fa-boxes-stacked"></i>
       <h6>Ingredients</h6>
     </a> -->
-    <a href="../Inventory/RecipeEditor.php" class="icon">
-      <i class="fa-solid fa-receipt"></i>
-      <h6>Recipe Editor</h6>
-    </a>
     <a href="../Inventory/Inventory.php" class="icon">
       <i class="fa-solid fa-warehouse"></i>
       <h6>Inventory</h6>
