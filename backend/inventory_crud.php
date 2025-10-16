@@ -94,11 +94,10 @@ function readInventoryItems() {
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $id);
         } else {
-            // Get all inventory items but only pastries category
-            $sql = "SELECT mi.*, m.name as menu_name, m.price as menu_price, m.category as menu_category 
-                FROM menu_inventory mi 
-                JOIN menu m ON mi.menu_id = m.id 
-                WHERE m.category = 'pastries' 
+            // Get all inventory items
+            $sql = "SELECT mi.*, m.name as menu_name, m.price as menu_price, m.category as menu_category
+                FROM menu_inventory mi
+                JOIN menu m ON mi.menu_id = m.id
                 ORDER BY m.name";
             $stmt = $conn->prepare($sql);
         }
@@ -134,20 +133,7 @@ function updateInventoryItem() {
             return;
         }
         
-        // Ensure the referenced menu item belongs to pastries category
-        $menuCheck = $conn->prepare("SELECT category FROM menu WHERE id = ? LIMIT 1");
-        $menuCheck->bind_param('i', $menu_id);
-        $menuCheck->execute();
-        $menuRes = $menuCheck->get_result();
-        if ($menuRes->num_rows === 0) {
-            echo json_encode(['success' => false, 'message' => 'Referenced menu item not found']);
-            return;
-        }
-        $menuRow = $menuRes->fetch_assoc();
-        if (strtolower($menuRow['category']) !== 'pastries') {
-            echo json_encode(['success' => false, 'message' => 'Can only create/update inventory for pastries category']);
-            return;
-        }
+        // Allow all menu categories for inventory
 
         // Check if another inventory item exists for this menu item (excluding current item)
         $checkStmt = $conn->prepare("SELECT id FROM menu_inventory WHERE menu_id = ? AND id != ?");

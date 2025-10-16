@@ -1,95 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inventory Management</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="Inven.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="../HomePage/MainHome.css" />
+    <link rel="stylesheet" href="Inventory.css" />
 </head>
 <body>
 <?php include '../include/navbar.php'; ?>
 
-  <div class="content-wrapper">
-    <div class="content-header">
-      <h1>Inventory</h1>
-      <img src="../Images/Icon.png" alt="Logo" class="top-logo" />
+    <div class="right-Menu">
+        <div class="content-wrapper" style="background: transparent; box-shadow: none;">
+            <div class="content-header">
+                <h1>Inventory Management</h1>
+                <div class="inventory-selector">
+                    <label for="inventoryType">Select Inventory Type:</label>
+                    <select id="inventoryType">
+                        <option value="external">External Inventory</option>
+                        <option value="internal">Internal Inventory</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- External Inventory Section -->
+            <div id="externalInventory" class="inventory-section">
+                <div class="controls-section">
+                    <button class="btn btn-primary" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i> Add New Item
+                    </button>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Search items..." onkeyup="filterTable()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Menu Item</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Current Stock</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            <!-- Internal Inventory Section -->
+            <div id="internalInventory" class="inventory-section" style="display: none;">
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="btnAddIngredient">Add Ingredient</button>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-container">
+                        <table id="ingredientsTable">
+                            <thead><tr><th>ID</th><th>Name</th><th>Unit</th><th>Current Price</th><th>Current Stock</th><th>Status</th><th>Last Update</th><th>Actions</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals for External Inventory -->
+        <div id="inventoryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Add New Inventory Item</h2>
+                    <span class="close" onclick="closeModal()">&times;</span>
+                </div>
+                <form id="inventoryForm">
+                    <input type="hidden" id="itemId" name="id">
+                    <div class="form-group">
+                        <label for="menuSelectDropdown">Select Menu Item:</label>
+                        <select id="menuSelectDropdown" name="menuSelectDropdown">
+                            <option value="">Choose a menu item...</option>
+                        </select>
+                        <input type="text" id="menuSelectReadonly" readonly style="display:none; margin-top:8px;" />
+                        <input type="hidden" id="menuId" name="menu_id" />
+                    </div>
+                    <div class="form-group">
+                        <label for="stockQuantity">Stock Quantity:</label>
+                        <input type="number" id="stockQuantity" name="stock_quantity" min="0" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span id="submitText">Add Item</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="quickUpdateModal" class="modal">
+            <div class="modal-content small">
+                <div class="modal-header">
+                    <h2>Quick Stock Update</h2>
+                    <span class="close" onclick="closeQuickUpdateModal()">&times;</span>
+                </div>
+                <div class="quick-update-content">
+                    <p id="quickUpdateItemName"></p>
+                    <p>Current Stock: <span id="currentStock"></span></p>
+                    <div class="stock-actions">
+                        <div class="stock-input-group">
+                            <label>Add Stock:</label>
+                            <div class="input-with-btn">
+                                <input type="number" id="addStockAmount" min="1" value="1">
+                                <button class="btn btn-success" onclick="updateStock('add')">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="stock-input-group">
+                            <label>Remove Stock:</label>
+                            <div class="input-with-btn">
+                                <input type="number" id="removeStockAmount" min="1" value="1">
+                                <button class="btn btn-warning" onclick="updateStock('remove')">
+                                    <i class="fas fa-minus"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmModal" class="modal">
+            <div class="modal-content small">
+                <div class="modal-header">
+                    <h2>Confirm Action</h2>
+                </div>
+                <div class="confirm-content">
+                    <p id="confirmMessage"></p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals for Internal Inventory -->
+        <div id="ingredientModal" class="modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="ingredientForm" class="modal-form">
+                    <h2 id="modalTitleIngredient">Add Ingredient</h2>
+                    <input type="hidden" id="ingredientId" />
+                    <label>Name
+                        <input id="ingredientName" name="name" type="text" required />
+                    </label>
+                    <label>Unit
+                        <select id="ingredientUnit" name="unit" required>
+                            <option value="ml">ml</option>
+                            <option value="pcs">pcs</option>
+                            <option value="g">g</option>
+                        </select>
+                    </label>
+                    <label>Stock Quantity
+                        <input id="ingredientStock" name="stock_quantity" type="number" step="0.01" min="0" required />
+                    </label>
+                    <label>Price
+                        <input id="ingredientPrice" name="price" type="number" step="0.01" min="0" required />
+                    </label>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary" id="saveIngredient">Save</button>
+                        <button type="button" class="btn btn-secondary" id="cancelIngredient" onclick="closeIngredientModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="toast">
+            <div class="toast-content">
+                <i class="toast-icon"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button class="toast-close" onclick="closeToast()">&times;</button>
+        </div>
     </div>
 
-    <div class="category-container">
-      <button class="category-btn" aria-expanded="false" id="categoryToggle">
-        Category <span class="arrow">▸</span>
-      </button>
-
-      <div class="category-list" role="list">
-        <button class="category-item active" data-target="coffee-section">Coffee</button>
-        <button class="category-item" data-target="pastries-section">Pastries</button>
-        <button class="category-item" data-target="meals-section">Meals</button>
-      </div>
-    </div>
-
-    <section id="coffee-section" class="section active">
-      <h2 class="section-title">Coffee-ingredients</h2>
-      <div class="item" data-key="Espresso" data-initial="80" data-max="100" data-unit=" grams SINGLE SHOT" data-manual-adjustment="20"><span class="item-name">Espresso</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Water Bottles" data-initial="50" data-max="50" data-unit="LITRES" data-manual-adjustment="10"><span class="item-name">Water Bottles</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-
-      <h3 class="section-subtitle" style="margin-top: 40px;">Extras/Sides:</h3>
-      <div class="item" data-key="Sugar 15 (grams) " data-initial="50" data-max="100" data-unit="grams" data-manual-adjustment="10"><span class="item-name">Sugar</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Syrup 10 (grams)" data-initial="20" data-max="40" data-unit="grams" data-manual-adjustment="5"><span class="item-name">Syrup</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Espresso 15 (grams)" data-initial="0.8" data-max="1.5" data-unit="grams" data-manual-adjustment="0.3"><span class="item-name">Espresso</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-    </section>
-
-    <section id="pastries-section" class="section">
-      <h2 class="section-title">Pastries-ingredients</h2>
-      
-      <h3 class="section-subtitle">Sandwich Ingredients:</h3>
-      <div class="item" data-key="Bread Slices" data-initial="100" data-max="150" data-unit="SLICES" data-manual-adjustment="20"><span class="item-name">Bread Slices</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Mayonnaise" data-initial="500" data-max="1000" data-unit="G" data-manual-adjustment="250"><span class="item-name">Mayonnaise</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Salt/Pepper" data-initial="200" data-max="500" data-unit="G" data-manual-adjustment="100"><span class="item-name">Salt/Pepper Mix</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-
-      <div class="item" data-key="Chicken Breast" data-initial="1500" data-max="2000" data-unit="G" data-manual-adjustment="500"><span class="item-name">Chicken Breast</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Lettuce" data-initial="10" data-max="15" data-unit="HEADS" data-manual-adjustment="3"><span class="item-name">Lettuce (Heads)</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Tomato Slices" data-initial="50" data-max="75" data-unit="SLICES" data-manual-adjustment="15"><span class="item-name">Tomato Slices</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Sandwich Spread" data-initial="400" data-max="800" data-unit="ML" data-manual-adjustment="200"><span class="item-name">Sandwich Spread</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      
-      <h3 class="section-subtitle" style="margin-top: 20px;">Outside Purchased Food (PCS):</h3>
-      <div class="item" data-key="Cookie Crinkles" data-initial="30" data-max="50" data-unit="PCS" data-manual-adjustment="10"><span class="item-name">Cookie Crinkles (PCS)</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Flavored Croissant" data-initial="20" data-max="30" data-unit="PCS" data-manual-adjustment="5"><span class="item-name">Flavored Croissant</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Macho Nacho" data-initial="15" data-max="25" data-unit="PACKS" data-manual-adjustment="5"><span class="item-name">Macho Nacho</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-    </section>
-
-    <section id="meals-section" class="section">
-      <h2 class="section-title">Meals-inventory</h2>
-      
-      <h3 class="section-subtitle">Ingredients:</h3>
-      <div class="item" data-key="Eggs (PCS)" data-initial="36" data-max="60" data-unit="PCS" data-manual-adjustment="12"><span class="item-name">Eggs</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Rice (Bulk)" data-initial="5000" data-max="10000" data-unit="G" data-manual-adjustment="1000"><span class="item-name">Rice</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Ham (Bulk)" data-initial="1000" data-max="1500" data-unit="G" data-manual-adjustment="250"><span class="item-name">Ham</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      
-      <h3 class="section-subtitle" style="margin-top: 20px;">Condiments and Cooking Essentials:</h3>
-      <div class="item" data-key="Cooking Oil" data-initial="5.0" data-max="10.0" data-unit="LITRES" data-manual-adjustment="2.0"><span class="item-name">Cooking Oil</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Salt" data-initial="500" data-max="1000" data-unit="G" data-manual-adjustment="200"><span class="item-name">Salt</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Black Pepper" data-initial="100" data-max="200" data-unit="G" data-manual-adjustment="50"><span class="item-name">Black Pepper</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Soy Sauce" data-initial="1.0" data-max="2.0" data-unit="LITRES" data-manual-adjustment="0.5"><span class="item-name">Soy Sauce</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Vinegar" data-initial="1.0" data-max="2.0" data-unit="LITRES" data-manual-adjustment="0.5"><span class="item-name">Vinegar</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      
-      <h3 class="section-subtitle" style="margin-top: 20px;">Meal Components:</h3>
-      <div class="item" data-key="Omelette Spices" data-initial="100" data-max="200" data-unit="G" data-manual-adjustment="50"><span class="item-name">Omelette Spices/Seasoning</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Hungarian Sausage" data-initial="20" data-max="30" data-unit="PCS" data-manual-adjustment="5"><span class="item-name">Hungarian Sausage</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Pasta Noodles" data-initial="2000" data-max="3000" data-unit="G" data-manual-adjustment="500"><span class="item-name">Pasta Noodles</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Carbonara Sauce Base" data-initial="1.0" data-max="2.0" data-unit="LITRES" data-manual-adjustment="0.5"><span class="item-name">Carbonara Sauce Base</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Pork Sisig Meat" data-initial="1500" data-max="2500" data-unit="G" data-manual-adjustment="500"><span class="item-name">Pork Sisig Meat</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-
-      <h3 class="section-subtitle" style="margin-top: 40px;">Extras/Sides:</h3>
-      <div class="item" data-key="White Rice (Portions)" data-initial="50" data-max="100" data-unit="PORTIONS" data-manual-adjustment="10"><span class="item-name">White Rice</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Fried Egg (PCS)" data-initial="20" data-max="40" data-unit="PCS" data-manual-adjustment="5"><span class="item-name">Fried Egg</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-      <div class="item" data-key="Cheese Sauce" data-initial="0.8" data-max="1.5" data-unit="LITRES" data-manual-adjustment="0.3"><span class="item-name">Cheese Sauce</span><div class="bar-container"><div class="bar"></div></div><span class="stock-text"></span><div class="btn-group"><button class="stock-btn deduct-btn">-</button><button class="stock-btn add-btn">+</button></div></div>
-    </section>
-  </div>
-
-  <div id="message-box"></div>
-
-
-  <script src="Invent.js"></script>
+    <script src="Inventory.js"></script>
 </body>
 </html>
