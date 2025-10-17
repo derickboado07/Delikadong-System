@@ -29,6 +29,18 @@ function setupInventorySelector() {
     });
 }
 
+// Auto-refresh inventory data every 30 seconds when active
+setInterval(() => {
+    const selector = document.getElementById('inventoryType');
+    if (selector) {
+        if (selector.value === 'external') {
+            loadInventoryData();
+        } else if (selector.value === 'internal') {
+            loadIngredients();
+        }
+    }
+}, 30000);
+
 // Setup event listeners
 function setupEventListeners() {
     // Form submission

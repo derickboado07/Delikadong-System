@@ -54,68 +54,6 @@ function clearProductForm(){
 }
 
 async function loadProducts(){
-  try{
-    const res = await fetch('../backend/inventory_crud.php?action=getMenuItems');
-    const json = await res.json();
-    const tbody = document.querySelector('#productsTable tbody');
-    tbody.innerHTML = '';
-    if (json.success && Array.isArray(json.data)){
-      json.data.forEach(p=>{
-        const imageSrc = p.image ? `../Images/${p.image}` : '../Images/Icon.png';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><img src="${imageSrc}" alt="${p.name}" class="product-thumbnail" onerror="this.src='../Images/Icon.png'"></td><td>${p.id}</td><td>${p.name}</td><td>${p.category}</td><td>₱${parseFloat(p.price).toFixed(2)}</td><td><button class="btn btn-sm btn-primary btn-edit" data-id="${p.id}">Edit</button> <button class="btn btn-sm btn-danger btn-del" data-id="${p.id}">Delete</button></td>`;
-        tbody.appendChild(tr);
-      });
-      if (json.data.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#666">No products found</td></tr>';
-    } else {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#c00">Error loading products</td></tr>';
-    }
-  }catch(e){
-    console.error(e);
-  }
-}
-
-let currentPage = 1, perPage = 10, currentQuery = '', currentCategory = '';
-
-function initProducts(){
-  populateCategoryFilter();
-  bindProductEvents();
-  fetchAndRender();
-}
-
-function bindProductEvents(){
-  document.getElementById('searchInput').addEventListener('input', (e)=>{ currentQuery = e.target.value; currentPage = 1; fetchAndRender(); });
-  document.getElementById('categoryFilter').addEventListener('change', (e)=>{ currentCategory = e.target.value; currentPage = 1; fetchAndRender(); });
-  document.getElementById('prevPage').addEventListener('click', ()=>{ if (currentPage>1){ currentPage--; fetchAndRender(); } });
-  document.getElementById('nextPage').addEventListener('click', ()=>{ currentPage++; fetchAndRender(); });
-  document.getElementById('btnAddProduct').addEventListener('click', ()=> openProductModal('create'));
-  document.getElementById('cancelProduct').addEventListener('click', ()=> closeProductModal());
-  document.getElementById('productForm').addEventListener('submit', saveProduct);
-
-  document.querySelector('#productsTable tbody').addEventListener('click', async (e)=>{
-    const id = e.target.dataset.id;
-    if (!id) return;
-    if (e.target.classList.contains('btn-del')){
-      if (!confirm('Delete product?')) return;
-      const res = await fetch('../backend/menu_crud.php?action=delete&id='+encodeURIComponent(id));
-      const json = await res.json();
-      if (json && json.success) { showToast('Product deleted','success'); fetchAndRender(); }
-      else showToast('Failed to delete product','error');
-    }
-    if (e.target.classList.contains('btn-edit')){
-      const res = await fetch('../backend/menu_crud.php?action=get&id='+encodeURIComponent(id));
-      const json = await res.json();
-      openProductModal('edit', json.data);
-    }
-  });
-}
-
-function populateCategoryFilter(){
-  const sel = document.getElementById('categoryFilter');
-  ['','pastries','meals','espresso','signature'].forEach(c=>{ const opt = document.createElement('option'); opt.value=c; opt.textContent = c || 'All Categories'; sel.appendChild(opt); });
-}
-
-async function fetchAndRender(){
   const url = `../backend/menu_crud.php?action=list&page=${currentPage}&per_page=${perPage}&q=${encodeURIComponent(currentQuery)}&category=${encodeURIComponent(currentCategory)}`;
   const res = await fetch(url);
   const json = await res.json();
@@ -132,6 +70,48 @@ async function fetchAndRender(){
     });
   } else { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c00">Error loading products</td></tr>' }
 }
+
+let currentPage = 1, perPage = 10, currentQuery = '', currentCategory = '';
+
+function initProducts(){
+  populateCategoryFilter();
+  bindProductEvents();
+  loadProducts();
+}
+
+function bindProductEvents(){
+  document.getElementById('searchInput').addEventListener('input', (e)=>{ currentQuery = e.target.value; currentPage = 1; loadProducts(); });
+  document.getElementById('categoryFilter').addEventListener('change', (e)=>{ currentCategory = e.target.value; currentPage = 1; loadProducts(); });
+  document.getElementById('prevPage').addEventListener('click', ()=>{ if (currentPage>1){ currentPage--; loadProducts(); } });
+  document.getElementById('nextPage').addEventListener('click', ()=>{ currentPage++; loadProducts(); });
+  document.getElementById('btnAddProduct').addEventListener('click', ()=> openProductModal('create'));
+  document.getElementById('cancelProduct').addEventListener('click', ()=> closeProductModal());
+  document.getElementById('productForm').addEventListener('submit', saveProduct);
+
+  document.querySelector('#productsTable tbody').addEventListener('click', async (e)=>{
+    const id = e.target.dataset.id;
+    if (!id) return;
+    if (e.target.classList.contains('btn-del')){
+      if (!confirm('Delete product?')) return;
+      const res = await fetch('../backend/menu_crud.php?action=delete&id='+encodeURIComponent(id));
+      const json = await res.json();
+      if (json && json.success) { showToast('Product deleted','success'); loadProducts(); }
+      else showToast('Failed to delete product','error');
+    }
+    if (e.target.classList.contains('btn-edit')){
+      const res = await fetch('../backend/menu_crud.php?action=get&id='+encodeURIComponent(id));
+      const json = await res.json();
+      openProductModal('edit', json.data);
+    }
+  });
+}
+
+function populateCategoryFilter(){
+  const sel = document.getElementById('categoryFilter');
+  ['','pastries','meals','espresso','signature'].forEach(c=>{ const opt = document.createElement('option'); opt.value=c; opt.textContent = c || 'All Categories'; sel.appendChild(opt); });
+}
+
+
 
 function openProductModal(mode='create', data=null){
   document.getElementById('productModal').setAttribute('aria-hidden','false');
@@ -164,14 +144,13 @@ async function saveProduct(e){
     const payload = { name, category, price };
     if (id) payload.id = id;
     res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'application/json'} });
-    res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'application/json'} });
     json = await res.json();
   }
   if (json && json.success) {
     showToast('Product saved', 'success');
     clearProductForm();
     closeProductModal();
-    fetchAndRender();
+    loadProducts();
   } else {
     showToast('Failed to save product', 'error');
   }
@@ -321,7 +300,7 @@ function initRecipes() {
 
   // bind events
   loadBtn.addEventListener('click', () => loadRecipe(menuSelect.value));
-  newBtn.addEventListener('click', () => { tbody.innerHTML = ''; addRow(); currentMenuId = menuSelect.value || null; });
+  newBtn.addEventListener('click', () => { tbody.innerHTML = ''; for(let i=0; i<3; i++) addRow(); currentMenuId = menuSelect.value || null; });
   addRowBtn.addEventListener('click', () => addRow());
   saveBtn.addEventListener('click', saveRecipe);
   clearBtn.addEventListener('click', () => { tbody.innerHTML = ''; });

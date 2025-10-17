@@ -28,13 +28,13 @@
 }
 
 .icon i, .icons i {
-  font-size: 20px;
+  font-size: 24px;
   color: #b87333;
 }
 
 .icon h6, .icons h6 {
   margin: 5px 0 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* Hover effect for all icons including sign-out */
