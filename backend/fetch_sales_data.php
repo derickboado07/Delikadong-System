@@ -22,9 +22,9 @@ if (!$start_date && !$end_date) {
     FROM orders o
     WHERE o.payment_status = 'paid'";
 } else {
-    // If dates provided, show data for the period
+    // If dates provided, show aggregated data for the period
     $query = "SELECT
-        DATE(o.created_at) as date,
+        CONCAT('$start_date', ' to ', '$end_date') as date,
         COUNT(DISTINCT o.id) as orders_today,
         SUM(o.total_amount) as gross_sales,
         SUM(o.total_amount) as net_income,
@@ -37,9 +37,7 @@ if (!$start_date && !$end_date) {
          LIMIT 1) as top_product
     FROM orders o
     WHERE o.payment_status = 'paid'
-    AND DATE(o.created_at) BETWEEN '$start_date' AND '$end_date'
-    GROUP BY DATE(o.created_at)
-    ORDER BY date DESC";
+    AND DATE(o.created_at) BETWEEN '$start_date' AND '$end_date'";
 }
 
 $result = $conn->query($query);

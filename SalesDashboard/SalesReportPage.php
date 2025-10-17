@@ -29,7 +29,7 @@
         <p class="value" id="grossSales">₱0</p>
       </div>
       <div class="card">
-        <h4>Order Today</h4>
+        <h4>Total Orders</h4>
         <p class="value" id="ordersToday">0 Orders</p>
       </div>
       <div class="card">
