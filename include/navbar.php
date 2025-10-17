@@ -27,10 +27,7 @@
       <i class="fa-solid fa-warehouse"></i>
       <h6>Inventory</h6>
     </a>
-    <a href="../Inventory/InventoryReports.php" class="icon">
-      <i class="fa-solid fa-chart-bar"></i>
-      <h6>Reports</h6>
-    </a>
+   
     <a href="../SalesDashboard/SalesReportPage.php" class="icon">
       <i class="fa-solid fa-wallet"></i><h6>Sales</h6>
     </a>
