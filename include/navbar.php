@@ -13,7 +13,7 @@
     </a>
     <a href="http://localhost/smart-ordering/Inventory/ProductConfiguration.php" class="icon">
       <i class="fa-solid fa-cogs"></i>
-      <h6>Product Configuration</h6>
+      <h6>Customization</h6>
     </a>
     <a href="../List-Orders/Orderlist.php" class="icon">
       <i class="fa-solid fa-list"></i>
