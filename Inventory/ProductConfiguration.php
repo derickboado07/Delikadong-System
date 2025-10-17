@@ -32,7 +32,12 @@
             <h2>Products</h2>
             <div class="header-actions">
               <input id="searchInput" placeholder="Search products..." />
-              <select id="categoryFilter"><option value="">All Categories</option></select>
+              <select id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="coffee">Coffee</option>
+                <option value="pastries">Pastries</option>
+                <option value="meals">Meals</option>
+              </select>
               <button id="btnAddProduct" class="btn btn-primary">Add Product</button>
             </div>
           </div>
@@ -60,10 +65,11 @@
                 <label>Name <input id="productName" required /></label>
                 <label>Category
                   <select id="productCategory" required>
-                    <option value="pastries">pastries</option>
-                    <option value="meals">meals</option>
-                    <option value="espresso">espresso</option>
-                    <option value="signature">signature</option>
+                    <option value="coffee">Coffee</option>
+                    <option value="pastries">Pastries</option>
+                    <option value="meals">Meals</option>
+                    <option value="espresso">Espresso</option>
+                    <option value="signature">Signature</option>
                   </select>
                 </label>
                 <label>Price <input id="productPrice" type="number" step="0.01" required /></label>

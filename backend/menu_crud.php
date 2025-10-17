@@ -160,7 +160,21 @@ try {
     if ($action === 'categories') {
         $res = $conn->query("SELECT DISTINCT category FROM menu WHERE (status IS NULL OR status = 'active') ORDER BY category");
         $cats = [];
-        while ($r = $res->fetch_assoc()) $cats[] = $r['category'];
+        while ($r = $res->fetch_assoc()) {
+            // normalize to lowercase and skip empty/null
+            $c = $r['category'] ?? '';
+            if ($c === null) continue;
+            $c = trim($c);
+            if ($c === '') continue;
+            $cats[] = strtolower($c);
+        }
+        // ensure common default categories exist so the front-end always has options
+        $defaults = ['coffee','pastries','meals'];
+        foreach ($defaults as $d) {
+            if (!in_array($d, $cats)) $cats[] = $d;
+        }
+        // remove duplicates while preserving order
+        $cats = array_values(array_unique($cats));
         echo json_encode(['success'=>true,'data'=>$cats]); exit;
     }
 

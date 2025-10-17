@@ -66,6 +66,40 @@ async function loadCategories() {
   }
 }
 
+// Provide default categories when backend doesn't return any or on error
+function ensureDefaultCategories(){
+  const defaults = [
+    { value: 'coffee', label: 'Coffee' },
+    { value: 'pastries', label: 'Pastries' },
+    { value: 'meals', label: 'Meals' }
+  ];
+  const productSelect = document.getElementById('productCategory');
+  const filterSelect = document.getElementById('categoryFilter');
+  if (productSelect && productSelect.options.length <= 1){ // only default/placeholder
+    defaults.forEach(d=>{
+      const opt = document.createElement('option'); opt.value = d.value; opt.textContent = d.label; productSelect.appendChild(opt);
+    });
+  }
+  if (filterSelect && filterSelect.options.length <= 1){
+    defaults.forEach(d=>{
+      const opt = document.createElement('option'); opt.value = d.value; opt.textContent = d.label; filterSelect.appendChild(opt);
+    });
+  }
+}
+
+// call ensureDefaultCategories after attempting to load from backend
+const _origInitProducts = initProducts;
+function initProducts(){
+  // original initProducts loads categories then binds events and loads products
+  // call original if exists, else mimic its previous behavior
+  try{ _origInitProducts(); }catch(e){
+    // fallback: bind events and load products lightly
+    bindProductEvents();
+    loadProducts();
+  }
+  setTimeout(ensureDefaultCategories, 250);
+}
+
 function clearProductForm(){
   document.getElementById('productId').value = '';
   document.getElementById('productName').value = '';
