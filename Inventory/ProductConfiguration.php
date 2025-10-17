@@ -34,9 +34,10 @@
               <input id="searchInput" placeholder="Search products..." />
               <select id="categoryFilter">
                 <option value="">All Categories</option>
-                <option value="coffee">Coffee</option>
+                <option value="espresso">Espresso</option>
                 <option value="pastries">Pastries</option>
                 <option value="meals">Meals</option>
+                <option value="signature">Signature</option>
               </select>
               <button id="btnAddProduct" class="btn btn-primary">Add Product</button>
             </div>
@@ -65,9 +66,10 @@
                 <label>Name <input id="productName" required /></label>
                 <label>Category
                   <select id="productCategory" required>
-                    <option value="coffee">Coffee</option>
+                    <option value="espresso">Espresso</option>
                     <option value="pastries">Pastries</option>
                     <option value="meals">Meals</option>
+                    <option value="signature">Signature</option>
                     <option value="espresso">Espresso</option>
                     <option value="signature">Signature</option>
                   </select>

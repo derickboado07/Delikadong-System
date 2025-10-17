@@ -169,7 +169,7 @@ try {
             $cats[] = strtolower($c);
         }
         // ensure common default categories exist so the front-end always has options
-        $defaults = ['coffee','pastries','meals'];
+    $defaults = ['espresso','pastries','meals','signature'];
         foreach ($defaults as $d) {
             if (!in_array($d, $cats)) $cats[] = $d;
         }

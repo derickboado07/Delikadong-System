@@ -69,9 +69,10 @@ async function loadCategories() {
 // Provide default categories when backend doesn't return any or on error
 function ensureDefaultCategories(){
   const defaults = [
-    { value: 'coffee', label: 'Coffee' },
+    { value: 'espresso', label: 'Espresso' },
     { value: 'pastries', label: 'Pastries' },
-    { value: 'meals', label: 'Meals' }
+    { value: 'meals', label: 'Meals' },
+    { value: 'signature', label: 'Signature' }
   ];
   const productSelect = document.getElementById('productCategory');
   const filterSelect = document.getElementById('categoryFilter');
