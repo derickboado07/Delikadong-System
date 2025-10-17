@@ -322,15 +322,54 @@ function checkAvailability() {
 
             if (!$menu_id) continue;
 
-            // Check if menu item has inventory
-            $invStmt = $conn->prepare("SELECT stock_quantity FROM menu_inventory WHERE menu_id = ?");
+            // First check if this menu item has a recipe. If it does, use ingredients to determine availability.
+            $hasRecipeStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM menu_recipes WHERE menu_id = ?");
+            $hasRecipeStmt->bind_param("i", $menu_id);
+            $hasRecipeStmt->execute();
+            $hasRecipeRow = $hasRecipeStmt->get_result()->fetch_assoc();
+            $hasRecipe = intval($hasRecipeRow['cnt'] ?? 0) > 0;
+            $hasRecipeStmt->close();
+
+            if ($hasRecipe) {
+                // Use ingredients to check availability
+                $recipeStmt = $conn->prepare("SELECT i.name as ingredient_name, mr.quantity_required, i.stock_quantity
+                                            FROM menu_recipes mr
+                                            JOIN ingredients i ON mr.ingredient_id = i.id
+                                            WHERE mr.menu_id = ?");
+                $recipeStmt->bind_param("i", $menu_id);
+                $recipeStmt->execute();
+                $recipeResult = $recipeStmt->get_result();
+
+                $missingIngredient = false;
+                while ($recipeRow = $recipeResult->fetch_assoc()) {
+                    $required = floatval($recipeRow['quantity_required']) * $quantity;
+                    $available = floatval($recipeRow['stock_quantity']);
+
+                    if ($available < $required) {
+                        $insufficient_ingredients[] = $recipeRow['ingredient_name'] . " (need {$required}, have {$available})";
+                        $missingIngredient = true;
+                    }
+                }
+
+                $recipeStmt->close();
+
+                if ($missingIngredient) {
+                    // Ingredients insufficient -> do not mark as product unavailable here (will report ingredients)
+                    continue;
+                }
+                // If ingredients sufficient, treat as available -> continue to next item
+                continue;
+            }
+
+            // No recipe: fall back to menu-level inventory
+            $invStmt = $conn->prepare("SELECT stock_quantity FROM menu_inventory WHERE menu_id = ? LIMIT 1");
             $invStmt->bind_param("i", $menu_id);
             $invStmt->execute();
             $invResult = $invStmt->get_result();
 
             if ($invResult->num_rows === 0) {
                 // No inventory record - item is unavailable
-                $menuStmt = $conn->prepare("SELECT name FROM menu WHERE id = ?");
+                $menuStmt = $conn->prepare("SELECT name FROM menu WHERE id = ? LIMIT 1");
                 $menuStmt->bind_param("i", $menu_id);
                 $menuStmt->execute();
                 $menuRow = $menuStmt->get_result()->fetch_assoc();
@@ -341,11 +380,11 @@ function checkAvailability() {
             }
 
             $invRow = $invResult->fetch_assoc();
-            $available_stock = $invRow['stock_quantity'];
+            $available_stock = floatval($invRow['stock_quantity']);
 
             if ($available_stock < $quantity) {
                 // Insufficient stock
-                $menuStmt = $conn->prepare("SELECT name FROM menu WHERE id = ?");
+                $menuStmt = $conn->prepare("SELECT name FROM menu WHERE id = ? LIMIT 1");
                 $menuStmt->bind_param("i", $menu_id);
                 $menuStmt->execute();
                 $menuRow = $menuStmt->get_result()->fetch_assoc();
@@ -356,38 +395,18 @@ function checkAvailability() {
             }
 
             $invStmt->close();
-
-            // Check ingredients availability
-            $recipeStmt = $conn->prepare("SELECT i.name as ingredient_name, mr.quantity_required, i.stock_quantity
-                                        FROM menu_recipes mr
-                                        JOIN ingredients i ON mr.ingredient_id = i.id
-                                        WHERE mr.menu_id = ?");
-            $recipeStmt->bind_param("i", $menu_id);
-            $recipeStmt->execute();
-            $recipeResult = $recipeStmt->get_result();
-
-            while ($recipeRow = $recipeResult->fetch_assoc()) {
-                $required = $recipeRow['quantity_required'] * $quantity;
-                $available = $recipeRow['stock_quantity'];
-
-                if ($available < $required) {
-                    $insufficient_ingredients[] = $recipeRow['ingredient_name'];
-                }
-            }
-
-            $recipeStmt->close();
         }
 
         $response = ['success' => true];
 
         if (!empty($unavailable_items)) {
             $response['product_unavailable'] = true;
-            $response['unavailable_products'] = $unavailable_items;
+            $response['unavailable_products'] = array_values(array_unique($unavailable_items));
         }
 
         if (!empty($insufficient_ingredients)) {
             $response['ingredients_unavailable'] = true;
-            $response['insufficient_ingredients'] = array_unique($insufficient_ingredients);
+            $response['insufficient_ingredients'] = array_values(array_unique($insufficient_ingredients));
         }
 
         echo json_encode($response);

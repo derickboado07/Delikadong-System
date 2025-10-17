@@ -35,6 +35,7 @@
       <div class="card">
         <h4>Net Income</h4>
         <p class="value" id="netIncome">₱0</p>
+        <p class="small" id="nextIncome" style="margin-top:6px;color:#555;font-size:0.9rem;">Next Income: ₱0</p>
       </div>
       <div class="card top-product">
         <h4>Top Product</h4>
@@ -209,13 +210,29 @@
     // Function to update dashboard with data
     function updateDashboard(data) {
       if (data.length > 0) {
-        // Use the most recent data (first in array since ordered by date DESC)
-        const latestData = data[0];
-        document.getElementById("grossSales").innerText = "₱" + parseFloat(latestData.gross_sales || 0).toLocaleString();
-        document.getElementById("ordersToday").innerText = (latestData.orders_today || 0) + " Orders";
-        document.getElementById("netIncome").innerText = "₱" + parseFloat(latestData.net_income || 0).toLocaleString();
-        document.getElementById("topProduct").innerHTML = '<i class="fa-solid fa-star"></i> ' + (latestData.top_product || 'N/A');
-      } else {
+          // Use the most recent data (first in array since ordered by date DESC)
+          const latestData = data[0];
+          const gross = parseFloat(latestData.gross_sales || 0);
+          const reportedNet = latestData.net_income !== undefined ? parseFloat(latestData.net_income) : null;
+          const ingredientCost = latestData.ingredient_cost !== undefined ? parseFloat(latestData.ingredient_cost) : null;
+
+          document.getElementById("grossSales").innerText = "₱" + gross.toLocaleString();
+          document.getElementById("ordersToday").innerText = (latestData.orders_today || 0) + " Orders";
+
+          // Compute net income: prefer server's net_income; otherwise use gross - ingredient_cost when available
+          let netToShow = 0;
+          if (reportedNet !== null && !isNaN(reportedNet)) {
+            netToShow = reportedNet;
+          } else if (ingredientCost !== null && !isNaN(ingredientCost)) {
+            netToShow = gross - ingredientCost;
+          } else {
+            // fallback: use gross as net (if no cost available)
+            netToShow = gross;
+          }
+
+          document.getElementById("netIncome").innerText = "₱" + netToShow.toLocaleString();
+          document.getElementById("topProduct").innerHTML = '<i class="fa-solid fa-star"></i> ' + (latestData.top_product || 'N/A');
+        } else {
         // Reset to default values if no data
         document.getElementById("grossSales").innerText = "₱0";
         document.getElementById("ordersToday").innerText = "0 Orders";
@@ -339,11 +356,19 @@
       updateProductPerformance(productData);
       updatePaymentBreakdown(paymentData);
       updateDailySalesChart(dailyTrendsData);
+  // compute next income with monthly trends
+  const monthlyTrendsData = await fetchMonthlySalesTrends(start, end);
+  const latestNet = (salesData.length > 0) ? (salesData[0].net_income !== undefined && salesData[0].net_income !== null ? parseFloat(salesData[0].net_income) : (parseFloat(salesData[0].gross_sales || 0) - (salesData[0].ingredient_cost !== undefined ? parseFloat(salesData[0].ingredient_cost || 0) : 0))) : 0;
+  const next = computeNextIncome(latestNet, monthlyTrendsData);
+  document.getElementById('nextIncome').innerText = 'Next Income: ₱' + next.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
 
       if (salesData.length === 0) {
         alert("No data found for the selected date range");
       }
     });
+
+    // Store last fetched monthly data for forecasting
+    let _lastMonthlyData = [];
 
     // Function to refresh all dashboard data
     async function refreshDashboardData() {
@@ -356,6 +381,9 @@
         const dailyTrendsData = await fetchDailySalesTrends();
         const monthlyTrendsData = await fetchMonthlySalesTrends();
 
+        // cache monthly data for forecasting
+        _lastMonthlyData = Array.isArray(monthlyTrendsData) ? monthlyTrendsData : [];
+
         // Update all sections
         updateDashboard(salesData);
         updateProductPerformance(productData);
@@ -363,6 +391,10 @@
         updateRecentOrders(ordersData);
         updateDailySalesChart(dailyTrendsData);
         updateMonthlySalesChart(monthlyTrendsData);
+        // Update next income forecast based on the latest net income and monthly data
+  const latestNet = (salesData.length > 0) ? (salesData[0].net_income !== undefined && salesData[0].net_income !== null ? parseFloat(salesData[0].net_income) : (parseFloat(salesData[0].gross_sales || 0) - (salesData[0].ingredient_cost !== undefined ? parseFloat(salesData[0].ingredient_cost || 0) : 0))) : 0;
+        const next = computeNextIncome(latestNet, _lastMonthlyData);
+        document.getElementById('nextIncome').innerText = 'Next Income: ₱' + next.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
       } catch (error) {
         console.error('Error refreshing dashboard data:', error);
       }
@@ -600,6 +632,69 @@
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         window.monthlyChart = null;
       }
+    }
+
+    // Compute next income forecast and update UI using a smoothed growth rate
+    // This uses the last 3-6 months (when available) and computes a geometric mean of month-over-month ratios
+    // to produce a less noisy growth estimate.
+    function computeNextIncome(netIncomeValue, monthlyData) {
+      // netIncomeValue: number (current/latest net income)
+      // monthlyData: array with {month, sales} objects (order may be latest-first or oldest-first)
+      if (!monthlyData || monthlyData.length === 0) {
+        return netIncomeValue;
+      }
+
+      // Normalize to numeric sales and parse month as Date when possible
+      const months = monthlyData.map(m => ({
+        month: m.month,
+        sales: Math.max(0, parseFloat(m.sales || 0))
+      }));
+
+      // Try to determine sort order: if first month date < second, assume ascending (old->new)
+      let sorted = months.slice();
+      try {
+        const a = new Date(sorted[0].month);
+        const b = new Date(sorted[1]?.month || sorted[0].month);
+        if (!isNaN(a) && !isNaN(b) && a > b) {
+          // a > b means first is later than second -> assume array already latest-first
+          // keep as-is
+        } else if (!isNaN(a) && !isNaN(b) && a <= b) {
+          // ascending (older first) -> reverse to make latest-first
+          sorted = sorted.reverse();
+        }
+      } catch (e) {
+        // ignore, use as-is
+      }
+
+      // Choose up to lastN months (prefer 6, but use at least 2 to compute growth)
+      const lastN = Math.min(6, Math.max(2, sorted.length));
+      const lastMonths = sorted.slice(0, lastN);
+
+      // Compute ratios for consecutive month pairs (latest / previous). We need at least one valid pair.
+      const ratios = [];
+      for (let i = 0; i < lastMonths.length - 1; i++) {
+        const latest = lastMonths[i].sales;
+        const prev = lastMonths[i + 1].sales;
+        if (prev > 0) {
+          ratios.push(latest / prev);
+        }
+        // if prev == 0, skip this pair (avoid infinite ratio)
+      }
+
+      if (ratios.length === 0) {
+        // cannot compute meaningful growth -> return netIncome as-is
+        return netIncomeValue;
+      }
+
+      // Geometric mean of ratios = product(ratios)^(1/ratios.length)
+      const product = ratios.reduce((p, r) => p * r, 1);
+      const geomMean = Math.pow(product, 1 / ratios.length);
+
+      if (!isFinite(geomMean) || isNaN(geomMean)) return netIncomeValue;
+
+      // Forecast next income by applying geometric mean multiplier
+      const forecast = netIncomeValue * geomMean;
+      return Math.max(0, forecast);
     }
 
   </script>

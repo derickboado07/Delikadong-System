@@ -11,7 +11,6 @@ window.onload = function () {
   const orderTotal = parseFloat(document.getElementById('orderTotal').value);
 
   let subtotal = orderTotal || 0;
-  let vatAmount = subtotal - (subtotal / 1.12); // VAT amount when VAT is included in subtotal
   let numericTotal = subtotal; // Total is the subtotal (VAT included)
   let finalTotal = numericTotal;
   let discountValue = 0;
@@ -19,13 +18,13 @@ window.onload = function () {
 
   // Set base totals
   const subtotalEl = document.getElementById("subtotal");
-  const vatAmountEl = document.getElementById("vatAmount");
+  const vatInfoEl = document.getElementById("vatInfo");
   const totalPayEl = document.getElementById("totalPay");
   const finalPayEl = document.getElementById("finalPay");
   const finalPayCashEl = document.getElementById("finalPayCash");
 
   if (subtotalEl) subtotalEl.innerText = "₱" + subtotal.toFixed(2);
-  if (vatAmountEl) vatAmountEl.innerText = "₱" + vatAmount.toFixed(2);
+  if (vatInfoEl) vatInfoEl.innerText = "₱" + (subtotal - (subtotal / 1.12)).toFixed(2);
   if (totalPayEl) totalPayEl.innerText = "₱" + numericTotal.toFixed(2);
   if (finalPayEl) finalPayEl.innerText = "₱" + numericTotal.toFixed(2);
   if (finalPayCashEl) finalPayCashEl.innerText = "₱" + numericTotal.toFixed(2);

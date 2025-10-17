@@ -52,9 +52,9 @@ $order_ids = [$order_id];
     <div class="payment-info">
       <h4>Payment Information:</h4>
       <p><strong>Date:</strong> <span id="paymentDate"></span></p>
-      <p>Subtotal (VAT included): <span id="subtotal">₱<?php echo number_format($order_total, 2); ?></span></p>
-      <p>VAT (12%): <span id="vatAmount">₱<?php echo number_format($order_total - ($order_total / 1.12), 2); ?></span></p>
-      <p>Total Pay: <span id="totalPay">₱<?php echo number_format($order_total, 2); ?></span></p>
+  <p>Subtotal: <span id="subtotal">₱<?php echo number_format($order_total, 2); ?></span></p>
+  <p>VAT (included): <span id="vatInfo">₱<?php echo number_format($order_total - ($order_total / 1.12), 2); ?></span></p>
+  <p>Total Pay: <span id="totalPay">₱<?php echo number_format($order_total, 2); ?></span></p>
       <p>Discount: <span id="discountInfo">None</span></p>
       <p><b>Final Total: <span id="finalPay">₱<?php echo number_format($order_total, 2); ?></span></b></p>
 
