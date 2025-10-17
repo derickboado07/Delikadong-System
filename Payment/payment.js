@@ -11,8 +11,8 @@ window.onload = function () {
   const orderTotal = parseFloat(document.getElementById('orderTotal').value);
 
   let subtotal = orderTotal || 0;
-  let vatAmount = subtotal * 0.12;
-  let numericTotal = subtotal + vatAmount; // Total with VAT
+  let vatAmount = subtotal - (subtotal / 1.12); // VAT amount when VAT is included in subtotal
+  let numericTotal = subtotal; // Total is the subtotal (VAT included)
   let finalTotal = numericTotal;
   let discountValue = 0;
   let discountType = 'none';
