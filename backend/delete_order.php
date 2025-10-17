@@ -85,16 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 }
 
                                 // Deduct menu-level inventory (if exists)
-                                $invUpdate->bind_param("di", $iqty, $mid);
-                                $invUpdate->execute();
-                                if ($invUpdate->affected_rows === 0) {
-                                    // Insert inventory row if missing
-                                    $invInsert->bind_param("i", $mid);
-                                    $invInsert->execute();
-                                    error_log("Inventory row created for menu_id={$mid} (missing) during completion deduction");
-                                } else {
-                                    error_log("Deducted {$iqty} units from menu_id={$mid} for order {$order_id}");
-                                }
+                                    $invUpdate->bind_param("di", $iqty, $mid);
+                                    $invUpdate->execute();
+                                    if ($invUpdate->affected_rows === 0) {
+                                        // No menu_inventory row exists for this menu_id; do not create one automatically.
+                                        error_log("No menu_inventory row for menu_id={$mid}; skipping menu-level deduction for order {$order_id}");
+                                    } else {
+                                        error_log("Deducted {$iqty} units from menu_id={$mid} for order {$order_id}");
+                                    }
 
                                 // Deduct ingredients per recipe
                                 $recipeStmt->bind_param('i', $mid);
@@ -129,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             // close prepared statements
                             $menuLookup->close();
                             $invUpdate->close();
-                            $invInsert->close();
+                            // Note: intentionally not creating missing menu_inventory rows here.
                             $ingredientUpdate->close();
                             $ingredientInsert->close();
                             $recipeStmt->close();

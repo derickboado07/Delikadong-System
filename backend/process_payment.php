@@ -155,7 +155,6 @@ try {
                     // Prepare statements
                     $menuLookup = $conn->prepare("SELECT id FROM menu WHERE LOWER(name) = LOWER(?) LIMIT 1");
                     $invUpdate = $conn->prepare("UPDATE menu_inventory SET stock_quantity = GREATEST(stock_quantity - ?, 0), last_updated = CURRENT_TIMESTAMP WHERE menu_id = ?");
-                    $invInsert = $conn->prepare("INSERT INTO menu_inventory (menu_id, stock_quantity) VALUES (?, 0)");
 
                     // ingredient update and safe insert-if-missing (only insert if not exists)
                     $ingredientUpdate = $conn->prepare("UPDATE ingredients SET stock_quantity = GREATEST(stock_quantity - ?, 0), last_updated = CURRENT_TIMESTAMP WHERE id = ?");
@@ -186,10 +185,9 @@ try {
                         $invUpdate->bind_param("di", $iqty, $mid);
                         $invUpdate->execute();
                         if ($invUpdate->affected_rows === 0) {
-                            // Insert inventory row if missing
-                            $invInsert->bind_param("i", $mid);
-                            $invInsert->execute();
-                            error_log("Inventory row created for menu_id={$mid} (missing) during payment deduction");
+                            // No menu_inventory row exists for this menu_id; do not create one automatically.
+                            // This prevents orders from populating the External Inventory list inadvertently.
+                            error_log("No menu_inventory row for menu_id={$mid}; skipping menu-level deduction for order {$order_id}");
                         } else {
                             error_log("Deducted {$iqty} units from menu_id={$mid} for order {$order_id}");
                         }
@@ -227,7 +225,7 @@ try {
                     // close prepared statements
                     $menuLookup->close();
                     $invUpdate->close();
-                    $invInsert->close();
+                    // Note: we intentionally do not create missing menu_inventory rows here.
                     $ingredientUpdate->close();
                     $ingredientInsert->close();
                     $recipeStmt->close();
