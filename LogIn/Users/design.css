@@ -1,0 +1,241 @@
+html, body {
+  overflow: hidden;
+}
+
+.error-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #ff4d4d;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  animation: fadeIn 0.5s, fadeOut 3s 2s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+.quotes {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.7);
+  width: 250px;
+  height: 120px;
+  border-radius: 20px;
+  border: 3px solid #794a3a;
+  padding: 15px;
+  box-sizing: border-box;
+  top: 5px;
+  right: -300px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: right 0.7s ease-out 0.3s;
+}
+
+.quotes.active {
+  right: 5px;
+}
+
+.quotes img {
+  width: 80px;
+  height: 80px;
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s ease;
+}
+
+.quotes:hover img {
+  transform: rotate(-5deg);
+}
+
+.quotes p {
+  color: white;
+  font-family: 'Dancing Script', cursive;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  height: 100%;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.quotes p span {
+  display: block;
+  line-height: 1.3;
+  transition: all 0.3s ease;
+}
+
+.quotes:hover p span {
+  transform: translateX(5px);
+}
+
+.login-container{
+   background: rgba(0, 0, 0, 0.6);
+   border: #794a3a solid 3px;
+   border-radius: 20px;
+   text-align: center;
+   width: 400px;
+   height: 95%;
+   box-shadow: 0 0 20px rgba(0,0,0,0.5);
+   color: #fff;
+   margin: 10px;
+}
+
+.logo{
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  object-fit: contain;
+  margin-bottom: -20px;
+  margin-top: 15px;
+}
+
+.input-group {
+  margin-bottom: 10px;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: left; 
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  width: 100%; 
+  text-align: center; 
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  justify-content: left; 
+  width: 100%; 
+  margin-left: 20px;
+}
+
+.icon-box {
+  background-color: white;
+  padding: 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  flex-shrink: 0;
+  color: black;
+}
+
+.input-row input {
+  padding: 15px 15px;
+  font-size: 14px;
+  border: black solid 2px;
+  border-radius: 25px;
+  outline: none;
+  background-color: white;
+  margin-left: 10px;
+  width: 240px;
+}
+
+/* Style for the login button */
+.login-button {
+  background-color: #794a3a;
+  color: white;
+  margin-top: 15px;
+  padding: 12px 25px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  width: 40%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 8px rgba(121, 74, 58, 0.4);
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  align-self: center;
+}
+
+/* Hover effect */
+.login-button:hover {
+  background-color: #a26b50;
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(162, 107, 80, 0.6);
+}
+
+
+.register-link {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+}
+
+
+.register-link a:hover {
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(175, 110, 93, 0.6);
+}
+
+.forgot-link {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+}
+
+.forgot-link a:hover {
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(175, 110, 93, 0.6);
+}
+
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0); 
+    opacity: 0;
+    transition: opacity 0.5s ease, background-color 0.5s ease;
+    z-index: 1;
+    pointer-events: none; 
+}
+
+.login-container {
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease 0.2s;
+    z-index: 2; 
+}
+
+.overlay.active {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.login-container.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+

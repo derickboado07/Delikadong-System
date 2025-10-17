@@ -34,7 +34,7 @@ include '../backend/db_connect.php'; // ensure $conn = mysqli_connect(...);
     <div class="pastries-grid">
       <?php
       // UPDATED: Select id from menu table and filter by pastries category
-      $sql = "SELECT id, name, price, image FROM menu WHERE category = 'pastries' ORDER BY name";
+      $sql = "SELECT id, name, price, image FROM menu WHERE category = 'pastries' AND status = 'active' ORDER BY name";
       if ($res = mysqli_query($conn, $sql)) {
         if (mysqli_num_rows($res) > 0) {
           while ($row = mysqli_fetch_assoc($res)) {

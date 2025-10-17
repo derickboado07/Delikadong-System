@@ -29,7 +29,7 @@ include '../backend/db_connect.php';
     <div class="meals-grid">
       <?php
       // UPDATED: Select id from menu table and filter by meals category
-      $sql = "SELECT id, name, price, image FROM menu WHERE category = 'meals' ORDER BY name";
+      $sql = "SELECT id, name, price, image FROM menu WHERE category = 'meals' AND status = 'active' ORDER BY name";
       if ($res = mysqli_query($conn, $sql)) {
         if (mysqli_num_rows($res) > 0) {
           while ($row = mysqli_fetch_assoc($res)) {

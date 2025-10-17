@@ -1,0 +1,3 @@
+- [x] Update CoffeeMenu/HomeMenu.php to filter active products in espresso and signature sections
+- [x] Update MealsMenu/Meals.php to filter active products in meals section
+- [x] Update PastriesMenu/PastriesMenu.php to filter active products in pastries section
