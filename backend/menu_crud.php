@@ -58,6 +58,20 @@ try {
         echo json_encode(['success'=>true,'data'=>$row]); exit;
     }
 
+    if ($action === 'read') {
+        $name = $_GET['name'] ?? '';
+        if (empty($name)) {
+            echo json_encode(['success'=>false,'message'=>'Name parameter required']); exit;
+        }
+        $stmt = $conn->prepare("SELECT id, name, price, category FROM menu WHERE name = ? AND (status IS NULL OR status = 'active') LIMIT 1");
+        $stmt->bind_param('s', $name);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows = [];
+        while ($r = $result->fetch_assoc()) $rows[] = $r;
+        echo json_encode(['success'=>true,'data'=>$rows]); exit;
+    }
+
     if ($action === 'create') {
         // support JSON body or multipart/form-data with file upload
         $name = $price = $category = $imageFilename = null;

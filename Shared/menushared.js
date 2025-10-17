@@ -77,9 +77,65 @@ document.addEventListener("DOMContentLoaded", () => {
 // In the confirm button event listener, replace with this:
 // In the confirm button event listener, replace with this:
 if (confirmBtn) {
-  confirmBtn.addEventListener("click", async () => {  
+  confirmBtn.addEventListener("click", async () => {
     if (orderItems.length > 0) {
       try {
+        // First, get menu_ids for each item by name
+        const menuIds = {};
+        for (const item of orderItems) {
+          try {
+            const menuRes = await fetch(`../backend/menu_crud.php?action=read&name=${encodeURIComponent(item.name)}`);
+            const menuData = await menuRes.json();
+            if (menuData.success && menuData.data.length > 0) {
+              menuIds[item.name] = menuData.data[0].id;
+              console.log(`✅ Found menu_id for ${item.name}: ${menuData.data[0].id}`);
+            } else {
+              console.warn(`❌ Menu item not found: ${item.name}`);
+            }
+          } catch (menuErr) {
+            console.error(`❌ Error fetching menu_id for ${item.name}:`, menuErr);
+          }
+        }
+
+        // Now check availability of all items in the order
+        const availabilityData = {
+          menu_items: orderItems.map(item => ({
+            menu_id: menuIds[item.name] || null,
+            quantity: item.quantity
+          })).filter(item => item.menu_id !== null) // Only check items with valid menu_id
+        };
+
+        if (availabilityData.menu_items.length === 0) {
+          alert("❌ Unable to verify product availability. Please try again.");
+          return;
+        }
+
+        console.log('Checking availability:', JSON.stringify(availabilityData, null, 2));
+
+        const availRes = await fetch("../backend/inventory_crud.php?action=checkAvailability", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ menu_items: JSON.stringify(availabilityData.menu_items) })
+        });
+
+        const availData = await availRes.json();
+        console.log("Availability response:", availData);
+
+        // Check for unavailable products
+        if (availData.product_unavailable) {
+          const unavailableProducts = availData.unavailable_products.join(', ');
+          alert(`❌ Product is not available: ${unavailableProducts}`);
+          return;
+        }
+
+        // Check for insufficient ingredients
+        if (availData.ingredients_unavailable) {
+          const insufficientIngredients = availData.insufficient_ingredients.join(', ');
+          alert(`❌ Ingredients are not available: ${insufficientIngredients}`);
+          return;
+        }
+
+        // If all checks pass, proceed with order
         // Prepare order data
         const orderData = {
           orders: orderItems.map(item => {
@@ -93,13 +149,13 @@ if (confirmBtn) {
               addons: item.addons || [],
               extras: item.extras || []
             };
-            
+
             if (typeof item.getTotal === 'function') {
               orderItem.getTotal = item.getTotal();
             } else {
               orderItem.getTotal = (item.basePrice || 0) * (item.quantity || 1);
             }
-            
+
             return orderItem;
           }),
           total: orderTotalEl.textContent || '0.00'

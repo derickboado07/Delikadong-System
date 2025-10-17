@@ -30,6 +30,9 @@ switch ($action) {
     case 'getMenuItems':
         getMenuItems();
         break;
+    case 'checkAvailability':
+        checkAvailability();
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
         break;
@@ -292,6 +295,102 @@ function getMenuItems() {
         }
 
         echo json_encode(['success' => true, 'data' => $data]);
+
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
+}
+
+// Check availability of menu items and their ingredients
+function checkAvailability() {
+    global $conn;
+
+    try {
+        $menu_items = json_decode($_POST['menu_items'] ?? '[]', true);
+
+        if (empty($menu_items)) {
+            echo json_encode(['success' => false, 'message' => 'No menu items provided']);
+            return;
+        }
+
+        $unavailable_items = [];
+        $insufficient_ingredients = [];
+
+        foreach ($menu_items as $item) {
+            $menu_id = $item['menu_id'] ?? null;
+            $quantity = $item['quantity'] ?? 1;
+
+            if (!$menu_id) continue;
+
+            // Check if menu item has inventory
+            $invStmt = $conn->prepare("SELECT stock_quantity FROM menu_inventory WHERE menu_id = ?");
+            $invStmt->bind_param("i", $menu_id);
+            $invStmt->execute();
+            $invResult = $invStmt->get_result();
+
+            if ($invResult->num_rows === 0) {
+                // No inventory record - item is unavailable
+                $menuStmt = $conn->prepare("SELECT name FROM menu WHERE id = ?");
+                $menuStmt->bind_param("i", $menu_id);
+                $menuStmt->execute();
+                $menuRow = $menuStmt->get_result()->fetch_assoc();
+                $unavailable_items[] = $menuRow['name'] ?? 'Unknown Item';
+                $menuStmt->close();
+                $invStmt->close();
+                continue;
+            }
+
+            $invRow = $invResult->fetch_assoc();
+            $available_stock = $invRow['stock_quantity'];
+
+            if ($available_stock < $quantity) {
+                // Insufficient stock
+                $menuStmt = $conn->prepare("SELECT name FROM menu WHERE id = ?");
+                $menuStmt->bind_param("i", $menu_id);
+                $menuStmt->execute();
+                $menuRow = $menuStmt->get_result()->fetch_assoc();
+                $unavailable_items[] = $menuRow['name'] ?? 'Unknown Item';
+                $menuStmt->close();
+                $invStmt->close();
+                continue;
+            }
+
+            $invStmt->close();
+
+            // Check ingredients availability
+            $recipeStmt = $conn->prepare("SELECT i.name as ingredient_name, mr.quantity_required, i.stock_quantity
+                                        FROM menu_recipes mr
+                                        JOIN ingredients i ON mr.ingredient_id = i.id
+                                        WHERE mr.menu_id = ?");
+            $recipeStmt->bind_param("i", $menu_id);
+            $recipeStmt->execute();
+            $recipeResult = $recipeStmt->get_result();
+
+            while ($recipeRow = $recipeResult->fetch_assoc()) {
+                $required = $recipeRow['quantity_required'] * $quantity;
+                $available = $recipeRow['stock_quantity'];
+
+                if ($available < $required) {
+                    $insufficient_ingredients[] = $recipeRow['ingredient_name'];
+                }
+            }
+
+            $recipeStmt->close();
+        }
+
+        $response = ['success' => true];
+
+        if (!empty($unavailable_items)) {
+            $response['product_unavailable'] = true;
+            $response['unavailable_products'] = $unavailable_items;
+        }
+
+        if (!empty($insufficient_ingredients)) {
+            $response['ingredients_unavailable'] = true;
+            $response['insufficient_ingredients'] = array_unique($insufficient_ingredients);
+        }
+
+        echo json_encode($response);
 
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
