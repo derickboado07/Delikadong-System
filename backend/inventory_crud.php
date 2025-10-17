@@ -281,18 +281,18 @@ function quickUpdateStock() {
 // Get menu items for dropdown
 function getMenuItems() {
     global $conn;
-    
+
     try {
-        $sql = "SELECT id, name, price, category FROM menu ORDER BY category, name";
+        $sql = "SELECT id, name, price, category FROM menu WHERE status = 'active' ORDER BY category, name";
         $result = $conn->query($sql);
-        
+
         $data = [];
         while ($row = $result->fetch_assoc()) {
             $data[] = $row;
         }
-        
+
         echo json_encode(['success' => true, 'data' => $data]);
-        
+
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
     }

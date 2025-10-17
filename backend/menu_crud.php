@@ -19,7 +19,7 @@ try {
         if ($category !== '') { $where[] = "category = ?"; $params[] = $category; }
 
         $whereSql = $where ? 'WHERE '.implode(' AND ', $where) : '';
-        $whereSql = $whereSql ? $whereSql . ' AND status = \'active\'' : 'WHERE status = \'active\'';
+        $whereSql = $whereSql ? $whereSql . ' AND (status IS NULL OR status = \'active\')' : 'WHERE (status IS NULL OR status = \'active\')';
 
         $countSql = "SELECT COUNT(*) AS cnt FROM menu $whereSql";
         $stmt = $conn->prepare($countSql);
@@ -133,11 +133,18 @@ try {
         $stmt = $conn->prepare("UPDATE menu SET status = 'inactive' WHERE id = ?");
         $stmt->bind_param('i', $id);
         $stmt->execute();
+
+        // Also delete associated inventory items
+        $deleteInventoryStmt = $conn->prepare("DELETE FROM menu_inventory WHERE menu_id = ?");
+        $deleteInventoryStmt->bind_param('i', $id);
+        $deleteInventoryStmt->execute();
+        $deleteInventoryStmt->close();
+
         echo json_encode(['success'=>true]); exit;
     }
 
     if ($action === 'categories') {
-        $res = $conn->query("SELECT DISTINCT category FROM menu WHERE status = 'active' ORDER BY category");
+        $res = $conn->query("SELECT DISTINCT category FROM menu WHERE (status IS NULL OR status = 'active') ORDER BY category");
         $cats = [];
         while ($r = $res->fetch_assoc()) $cats[] = $r['category'];
         echo json_encode(['success'=>true,'data'=>$cats]); exit;

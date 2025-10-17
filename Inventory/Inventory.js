@@ -29,12 +29,13 @@ function setupInventorySelector() {
     });
 }
 
-// Auto-refresh inventory data every 30 seconds when active
+// Auto-refresh inventory data and menu items every 30 seconds when active
 setInterval(() => {
     const selector = document.getElementById('inventoryType');
     if (selector) {
         if (selector.value === 'external') {
             loadInventoryData();
+            loadMenuItems(); // Refresh menu items for dropdown
         } else if (selector.value === 'internal') {
             loadIngredients();
         }
