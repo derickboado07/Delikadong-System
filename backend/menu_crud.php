@@ -19,6 +19,7 @@ try {
         if ($category !== '') { $where[] = "category = ?"; $params[] = $category; }
 
         $whereSql = $where ? 'WHERE '.implode(' AND ', $where) : '';
+        $whereSql = $whereSql ? $whereSql . ' AND status = \'active\'' : 'WHERE status = \'active\'';
 
         $countSql = "SELECT COUNT(*) AS cnt FROM menu $whereSql";
         $stmt = $conn->prepare($countSql);
@@ -127,14 +128,16 @@ try {
 
     if ($action === 'delete') {
         $id = intval($_GET['id'] ?? $_POST['id'] ?? 0);
-        $stmt = $conn->prepare("DELETE FROM menu WHERE id = ?");
+
+        // Soft delete: mark as inactive instead of hard delete
+        $stmt = $conn->prepare("UPDATE menu SET status = 'inactive' WHERE id = ?");
         $stmt->bind_param('i', $id);
         $stmt->execute();
         echo json_encode(['success'=>true]); exit;
     }
 
     if ($action === 'categories') {
-        $res = $conn->query("SELECT DISTINCT category FROM menu ORDER BY category");
+        $res = $conn->query("SELECT DISTINCT category FROM menu WHERE status = 'active' ORDER BY category");
         $cats = [];
         while ($r = $res->fetch_assoc()) $cats[] = $r['category'];
         echo json_encode(['success'=>true,'data'=>$cats]); exit;

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function(){
   initProducts();
 });
 
-// Products functionality (copied from Products.js)
+// Products functionality
 function showToast(message, type='success'){
   let toast = document.getElementById('products-toast');
   if (!toast){
@@ -42,6 +42,28 @@ function showToast(message, type='success'){
   toast.style.display = 'block';
   clearTimeout(toast._timeout);
   toast._timeout = setTimeout(()=>{ toast.style.display = 'none'; }, 3000);
+}
+
+async function loadCategories() {
+  try {
+    const res = await fetch('../backend/menu_crud.php?action=categories');
+    const json = await res.json();
+    if (json.success) {
+      const productSelect = document.getElementById('productCategory');
+      productSelect.innerHTML = '<option value="">Select Category</option>';
+      json.data.forEach(cat => {
+        productSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+      });
+
+      const filterSelect = document.getElementById('categoryFilter');
+      filterSelect.innerHTML = '<option value="">All Categories</option>';
+      json.data.forEach(cat => {
+        filterSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+      });
+    }
+  } catch (e) {
+    console.error('Error loading categories:', e);
+  }
 }
 
 function clearProductForm(){
@@ -74,7 +96,7 @@ async function loadProducts(){
 let currentPage = 1, perPage = 10, currentQuery = '', currentCategory = '';
 
 function initProducts(){
-  populateCategoryFilter();
+  loadCategories();
   bindProductEvents();
   loadProducts();
 }
@@ -93,10 +115,20 @@ function bindProductEvents(){
     if (!id) return;
     if (e.target.classList.contains('btn-del')){
       if (!confirm('Delete product?')) return;
-      const res = await fetch('../backend/menu_crud.php?action=delete&id='+encodeURIComponent(id));
-      const json = await res.json();
-      if (json && json.success) { showToast('Product deleted','success'); loadProducts(); }
-      else showToast('Failed to delete product','error');
+      try {
+        const res = await fetch('../backend/menu_crud.php?action=delete&id='+encodeURIComponent(id));
+        const json = await res.json();
+        if (json && json.success) {
+          showToast('Product deleted','success');
+          loadProducts();
+        } else {
+          const errorMsg = json && json.message ? json.message : 'Failed to delete product';
+          showToast(errorMsg, 'error');
+        }
+      } catch (error) {
+        console.error('Delete error:', error);
+        showToast('Failed to delete product', 'error');
+      }
     }
     if (e.target.classList.contains('btn-edit')){
       const res = await fetch('../backend/menu_crud.php?action=get&id='+encodeURIComponent(id));
