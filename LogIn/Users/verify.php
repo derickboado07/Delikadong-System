@@ -15,19 +15,7 @@ $email     = trim($_POST['email']);
 $password  = trim($_POST['password']);
 $confirm   = trim($_POST['confirm_password']);
 
-/* -------------------------
-   1️⃣ Check if another user is pending approval
-   Prevent multiple pending users at the same time
-   ------------------------- */
-$checkPending = $conn->query("SELECT COUNT(*) AS pending_count FROM users WHERE status='pending'");
-$pending = $checkPending->fetch_assoc();
-if ($pending['pending_count'] > 0) {
-    echo "<script>
-    alert('❌ Another user is already pending approval. Please wait for the admin to approve/reject that user first.');
-    window.location.href='../Users/Userlog.php';
-    </script>";
-    exit();
-}
+
 
 /* -------------------------
    2️⃣ Check password confirmation
