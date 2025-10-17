@@ -374,6 +374,20 @@ function updateOrderTotal() {
   orderTotalEl.textContent = total.toFixed(2);
 }
 
+function toggleAddonsDropdown(itemId) {
+  const content = document.getElementById(`addons-content-${itemId}`);
+  if (content) {
+    content.classList.toggle('active');
+  }
+}
+
+function toggleExtrasDropdown(itemId) {
+  const content = document.getElementById(`extras-content-${itemId}`);
+  if (content) {
+    content.classList.toggle('active');
+  }
+}
+
 function renderOrderItems() {
   if (!orderItemsContainer) return;
   orderItemsContainer.innerHTML = "";
@@ -387,7 +401,7 @@ function renderOrderItems() {
   orderItems.forEach((item) => {
     const orderItemEl = document.createElement("div");
     orderItemEl.className = "order-item";
-    orderItemEl.dataset.itemId = item.id; 
+    orderItemEl.dataset.itemId = item.id;
 
     let extrasSection = "";
     if (item.category === "coffee") {
@@ -408,24 +422,30 @@ function renderOrderItems() {
             <option value="No Sugar" ${item.sugarLevel === "No Sugar" ? "selected" : ""}>No Sugar</option>
           </select>
         </div>
-        <div>
-          <label><input type="checkbox" onchange="toggleAddon('${item.id}', 'Syrup', 10, this.checked)" ${item.addons.some(a => a.name === 'Syrup') ? 'checked' : ''}> Syrup (+₱10)</label>
-          <label><input type="checkbox" onchange="toggleAddon('${item.id}', 'Milk', 15, this.checked)" ${item.addons.some(a => a.name === 'Milk') ? 'checked' : ''}> Milk (+₱15)</label>
-          <label><input type="checkbox" onchange="toggleAddon('${item.id}', 'Espresso', 20, this.checked)" ${item.addons.some(a => a.name === 'Espresso') ? 'checked' : ''}> Extra Espresso (+₱20)</label>
+        <div class="addons-section">
+          <div class="addons-toggle" onclick="toggleAddonsDropdown('${item.id}')">Add-ons <span>▼</span></div>
+          <div class="addons-content" id="addons-content-${item.id}">
+            <label><input type="checkbox" onchange="toggleAddon('${item.id}', 'Syrup', 10, this.checked)" ${item.addons.some(a => a.name === 'Syrup') ? 'checked' : ''}> Syrup (+₱10)</label>
+            <label><input type="checkbox" onchange="toggleAddon('${item.id}', 'Milk', 15, this.checked)" ${item.addons.some(a => a.name === 'Milk') ? 'checked' : ''}> Milk (+₱15)</label>
+            <label><input type="checkbox" onchange="toggleAddon('${item.id}', 'Espresso', 20, this.checked)" ${item.addons.some(a => a.name === 'Espresso') ? 'checked' : ''}> Extra Espresso (+₱20)</label>
+          </div>
         </div>
       `;
     } else if (item.category === "meals") {
       // Check if it's a pizza item by name
       const pizzaItems = ["Hawaiian", "Arat Signature", "Garden Veggie", "Sausage Pizza"];
       const isPizza = pizzaItems.includes(item.name);
-      
+
       if (!isPizza) {
         // Only show extras for non-pizza meals
         extrasSection = `
-          <div>
-            <label><input type="checkbox" onchange="toggleExtra('${item.id}', 'White Rice', 15, this.checked)" ${item.extras.some(e => e.name === 'White Rice') ? 'checked' : ''}> White Rice (+₱15)</label>
-            <label><input type="checkbox" onchange="toggleExtra('${item.id}', 'Fried Egg', 10, this.checked)" ${item.extras.some(e => e.name === 'Fried Egg') ? 'checked' : ''}> Fried Egg (+₱10)</label>
-            <label><input type="checkbox" onchange="toggleExtra('${item.id}', 'Cheese Sauce', 20, this.checked)" ${item.extras.some(e => e.name === 'Cheese Sauce') ? 'checked' : ''}> Cheese Sauce (+₱20)</label>
+          <div class="extras-section">
+            <div class="extras-toggle" onclick="toggleExtrasDropdown('${item.id}')">Extras <span>▼</span></div>
+            <div class="extras-content" id="extras-content-${item.id}">
+              <label><input type="checkbox" onchange="toggleExtra('${item.id}', 'White Rice', 15, this.checked)" ${item.extras.some(e => e.name === 'White Rice') ? 'checked' : ''}> White Rice (+₱15)</label>
+              <label><input type="checkbox" onchange="toggleExtra('${item.id}', 'Fried Egg', 10, this.checked)" ${item.extras.some(e => e.name === 'Fried Egg') ? 'checked' : ''}> Fried Egg (+₱10)</label>
+              <label><input type="checkbox" onchange="toggleExtra('${item.id}', 'Cheese Sauce', 20, this.checked)" ${item.extras.some(e => e.name === 'Cheese Sauce') ? 'checked' : ''}> Cheese Sauce (+₱20)</label>
+            </div>
           </div>
         `;
       }
