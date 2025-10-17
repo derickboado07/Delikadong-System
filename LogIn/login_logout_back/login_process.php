@@ -108,7 +108,7 @@ if ($stmt2 = $conn->prepare("SELECT user_id, full_name, username, password, stat
             }
 
             $stmt2->close();
-            header("Location: ../HomePage/MainHome.php");
+            header("Location: ../../HomePage/MainHome.php");
             exit();
         }
 
@@ -136,7 +136,7 @@ if ($stmt2 = $conn->prepare("SELECT user_id, full_name, username, password, stat
             }
 
             $stmt2->close();
-            header("Location: ../HomePage/MainHome.php");
+            header("Location: ../../HomePage/MainHome.php");
             exit();
         }
 

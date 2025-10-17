@@ -8,7 +8,14 @@
   <link rel="stylesheet" href="MainHome.css" />
 </head>
 <body>
-<?php include '../include/navbar.php'; ?>
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../LogIn/Users/user.php");
+    exit();
+}
+include '../include/navbar.php';
+?>
 <!-- In the right side of the page has 4 types of menu which is coffee, pastries, drinks, meals-->
  <!-- The alt purpose is when the user has low internet and can't load the image the alt title will be displayed instead -->
   <div class="right-Menu">
@@ -97,7 +104,7 @@
       // Redirect to logout page when confirm is clicked
       if (confirmLogout) {
           confirmLogout.addEventListener('click', function() {
-              window.location.href = '../MainPage/Mainpage.html';
+              window.location.href = '../LogIn/login_logout_back/logout.php';
           });
       }
 

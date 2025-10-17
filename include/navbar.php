@@ -31,7 +31,7 @@
     <a href="../SalesDashboard/SalesReportPage.php" class="icon">
       <i class="fa-solid fa-wallet"></i><h6>Sales</h6>
     </a>
-    <a href="#" class="icons" id="signOutBtn">
+    <a href="../LogIn/login_logout_back/logout.php" class="icons" id="signOutBtn">
       <i class="fa-solid fa-arrow-right-from-bracket"></i>
       <h6>Sign-Out</h6>
     </a>
