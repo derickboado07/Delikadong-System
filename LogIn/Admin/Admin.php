@@ -62,6 +62,7 @@ $approvedUsers = $conn->query("
     <h2>Admin Panel</h2>
     <ul>
         <li><a href="#" class="active">Dashboard</a></li>
+        <li><a href="edit_admin.php">Edit Admin Details</a></li>
         <li><a href="#" onclick="if(confirm('Logout?')){window.location.href='admin_logout.php';}">Logout</a></li>
     </ul>
 </div>
@@ -131,8 +132,9 @@ $approvedUsers = $conn->query("
                 <td><?= htmlspecialchars($user['time_in'] ?? '—'); ?></td>
                 <td><?= htmlspecialchars($user['time_out'] ?? '—'); ?></td>
                 <td>
-                    <a href="remove_user.php?id=<?= $user['user_id']; ?>" 
-                       class="remove-btn" 
+                    <a href="edit_user.php?id=<?= $user['user_id']; ?>" class="edit-btn">Edit</a>
+                    <a href="remove_user.php?id=<?= $user['user_id']; ?>"
+                       class="remove-btn"
                        onclick="return confirm('Are you sure you want to remove this user?');">
                        Remove
                     </a>

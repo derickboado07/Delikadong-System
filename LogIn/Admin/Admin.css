@@ -95,22 +95,44 @@ td.offline {
 }
 
 /* Buttons */
+.edit-btn,
 .remove-btn,
 button {
-    background-color: #e74c3c;
     color: #fff;
-    padding: 6px 12px;
+    padding: 8px 16px;
     text-decoration: none;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.3s ease;
     font-size: 14px;
+    font-weight: 600;
+    margin-right: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.edit-btn:hover {
+    background: linear-gradient(135deg, #0056b3, #004085) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.remove-btn,
+button {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
 
 .remove-btn:hover,
 button:hover {
-    background-color: #c0392b;
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 button.approve {
@@ -191,4 +213,17 @@ button.approve:hover {
 @keyframes fadeIn {
     from {opacity: 0;}
     to {opacity: 1;}
+}
+
+/* Override default link styles */
+a:-webkit-any-link {
+    background-color: #e74c3c;
+    color: #fff;
+    padding: 6px 12px;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 14px;
 }
