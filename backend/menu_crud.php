@@ -4,6 +4,42 @@ require_once 'db_connect.php';
 
 $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 
+// Ensure menu table has expected columns: rename price->selling_price, add cost_price if missing
+try {
+    // Check if 'selling_price' exists
+    $colCheck = $conn->prepare("SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'menu' AND COLUMN_NAME = 'selling_price'");
+    $colCheck->execute();
+    $sellingCnt = $colCheck->get_result()->fetch_assoc()['cnt'] ?? 0;
+    $colCheck->close();
+
+    if (intval($sellingCnt) === 0) {
+        // If old 'price' column exists, rename it to selling_price
+        $oldCheck = $conn->prepare("SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'menu' AND COLUMN_NAME = 'price'");
+        $oldCheck->execute();
+        $oldCnt = $oldCheck->get_result()->fetch_assoc()['cnt'] ?? 0;
+        $oldCheck->close();
+
+        if (intval($oldCnt) > 0) {
+            // rename
+            $conn->query("ALTER TABLE menu CHANGE price selling_price DECIMAL(10,2) NOT NULL DEFAULT 0");
+        } else {
+            // add selling_price if neither exists
+            $conn->query("ALTER TABLE menu ADD COLUMN selling_price DECIMAL(10,2) NOT NULL DEFAULT 0");
+        }
+    }
+
+    // Ensure cost_price exists
+    $costCheck = $conn->prepare("SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'menu' AND COLUMN_NAME = 'cost_price'");
+    $costCheck->execute();
+    $costCnt = $costCheck->get_result()->fetch_assoc()['cnt'] ?? 0;
+    $costCheck->close();
+    if (intval($costCnt) === 0) {
+        $conn->query("ALTER TABLE menu ADD COLUMN cost_price DECIMAL(10,2) NOT NULL DEFAULT 0");
+    }
+} catch (Exception $e) {
+    // non-fatal; operations will continue and queries will fail explicitly if columns missing
+}
+
 try {
     if ($action === 'list') {
         // pagination, search, category filter
@@ -31,7 +67,8 @@ try {
         $total = $stmt->get_result()->fetch_assoc()['cnt'] ?? 0;
         $stmt->close();
 
-    $sql = "SELECT id, name, price, category, image FROM menu $whereSql ORDER BY category, name LIMIT ? OFFSET ?";
+    // Return 'price' for compatibility but map to selling_price in DB; include cost_price
+    $sql = "SELECT id, name, selling_price as price, cost_price, category, image FROM menu $whereSql ORDER BY category, name LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($sql);
         // bind params + perPage + offset
         $bindParams = $params;
@@ -51,7 +88,7 @@ try {
 
     if ($action === 'get') {
         $id = intval($_GET['id'] ?? 0);
-        $stmt = $conn->prepare("SELECT id, name, price, category FROM menu WHERE id = ? LIMIT 1");
+    $stmt = $conn->prepare("SELECT id, name, selling_price as price, cost_price, category FROM menu WHERE id = ? LIMIT 1");
         $stmt->bind_param('i', $id);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
@@ -63,7 +100,7 @@ try {
         if (empty($name)) {
             echo json_encode(['success'=>false,'message'=>'Name parameter required']); exit;
         }
-        $stmt = $conn->prepare("SELECT id, name, price, category FROM menu WHERE name = ? AND (status IS NULL OR status = 'active') LIMIT 1");
+    $stmt = $conn->prepare("SELECT id, name, selling_price as price, cost_price, category FROM menu WHERE name = ? AND (status IS NULL OR status = 'active') LIMIT 1");
         $stmt->bind_param('s', $name);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -74,13 +111,14 @@ try {
 
     if ($action === 'create') {
         // support JSON body or multipart/form-data with file upload
-        $name = $price = $category = $imageFilename = null;
+    $name = $price = $cost_price = $category = $imageFilename = null;
         if (!empty($_FILES) || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'multipart/form-data') !== false) {
             // ensure Images directory exists
             $uploadDir = __DIR__ . '/../Images/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
             $name = $_POST['name'] ?? '';
             $price = floatval($_POST['price'] ?? 0);
+            $cost_price = floatval($_POST['cost_price'] ?? 0);
             $category = $_POST['category'] ?? '';
             if (!empty($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
@@ -88,10 +126,11 @@ try {
                 move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $imageFilename);
             }
         } else {
-            $input = json_decode(file_get_contents('php://input'), true);
-            $name = $input['name'] ?? '';
-            $price = floatval($input['price'] ?? 0);
-            $category = $input['category'] ?? '';
+        $input = json_decode(file_get_contents('php://input'), true);
+        $name = $input['name'] ?? '';
+        $price = floatval($input['price'] ?? 0);
+        $cost_price = floatval($input['cost_price'] ?? 0);
+        $category = $input['category'] ?? '';
         }
         // ensure image column exists
         $colCheck = $conn->prepare("SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'menu' AND COLUMN_NAME = 'image'");
@@ -101,15 +140,15 @@ try {
         if (intval($colCnt) === 0) {
             $conn->query("ALTER TABLE menu ADD COLUMN image VARCHAR(255) DEFAULT NULL");
         }
-        $stmt = $conn->prepare("INSERT INTO menu (name, price, category, image) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param('sdss', $name, $price, $category, $imageFilename);
+    $stmt = $conn->prepare("INSERT INTO menu (name, selling_price, cost_price, category, image) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param('sddss', $name, $price, $cost_price, $category, $imageFilename);
         $stmt->execute();
         echo json_encode(['success'=>true,'id'=>$conn->insert_id]); exit;
     }
 
     if ($action === 'update') {
         // support file upload as well
-        $id = 0; $name = ''; $price = 0; $category = ''; $imageFilename = null;
+            $id = 0; $name = ''; $price = 0; $cost_price = 0; $category = ''; $imageFilename = null;
         if (!empty($_FILES) || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'multipart/form-data') !== false) {
             $id = intval($_POST['id'] ?? 0);
             $name = $_POST['name'] ?? '';
@@ -127,14 +166,15 @@ try {
             $id = intval($input['id'] ?? 0);
             $name = $input['name'] ?? '';
             $price = floatval($input['price'] ?? 0);
+            $cost_price = floatval($input['cost_price'] ?? 0);
             $category = $input['category'] ?? '';
         }
         if ($imageFilename) {
-            $stmt = $conn->prepare("UPDATE menu SET name = ?, price = ?, category = ?, image = ? WHERE id = ?");
-            $stmt->bind_param('sdssi', $name, $price, $category, $imageFilename, $id);
+            $stmt = $conn->prepare("UPDATE menu SET name = ?, selling_price = ?, cost_price = ?, category = ?, image = ? WHERE id = ?");
+            $stmt->bind_param('sddssi', $name, $price, $cost_price, $category, $imageFilename, $id);
         } else {
-            $stmt = $conn->prepare("UPDATE menu SET name = ?, price = ?, category = ? WHERE id = ?");
-            $stmt->bind_param('sdsi', $name, $price, $category, $id);
+            $stmt = $conn->prepare("UPDATE menu SET name = ?, selling_price = ?, cost_price = ?, category = ? WHERE id = ?");
+            $stmt->bind_param('sddsi', $name, $price, $cost_price, $category, $id);
         }
         $stmt->execute();
         echo json_encode(['success'=>true]); exit;

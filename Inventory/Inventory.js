@@ -132,7 +132,10 @@ function populateMenuSelect() {
     menuItems.forEach(item => {
         const option = document.createElement('option');
         option.value = item.id;
-        option.textContent = `${item.name} (${item.category}) - ₱${parseFloat(item.price).toFixed(2)}`;
+        const selling = parseFloat(item.price || 0).toFixed(2);
+        const cost = parseFloat(item.cost_price || 0).toFixed(2);
+        option.textContent = `${item.name} (${item.category}) - ₱${selling} (Cost: ₱${cost})`;
+        option.dataset.costPrice = cost;
         dropdown.appendChild(option);
     });
 }
@@ -238,8 +241,23 @@ function openAddModal() {
     if (dropdown) dropdown.style.display = '';
     if (readonly) { readonly.style.display = 'none'; readonly.value = ''; }
     if (hidden) hidden.value = '';
+    const costDisplay = document.getElementById('menuCostDisplay');
+    if (costDisplay) costDisplay.style.display = 'none';
     document.getElementById('inventoryModal').style.display = 'block';
 }
+
+// update cost display when dropdown changes
+document.getElementById('menuSelectDropdown').addEventListener('change', function() {
+    const selected = this.options[this.selectedIndex];
+    const costDisplay = document.getElementById('menuCostDisplay');
+    const costValue = document.getElementById('menuCostValue');
+    if (selected && selected.dataset && selected.dataset.costPrice) {
+        costValue.textContent = parseFloat(selected.dataset.costPrice || 0).toFixed(2);
+        costDisplay.style.display = '';
+    } else {
+        costDisplay.style.display = 'none';
+    }
+});
 
 function openEditModal(id, menuId, stockQuantity) {
     currentEditingId = id;
@@ -257,6 +275,15 @@ function openEditModal(id, menuId, stockQuantity) {
         readonly.value = `${menuObj.name} (${menuObj.category}) - ₱${parseFloat(menuObj.price).toFixed(2)}`;
     } else {
         readonly.value = '';
+    }
+    // show cost price
+    const costDisplay = document.getElementById('menuCostDisplay');
+    const costValue = document.getElementById('menuCostValue');
+    if (menuObj && costDisplay && costValue) {
+        costValue.textContent = parseFloat(menuObj.cost_price || 0).toFixed(2);
+        costDisplay.style.display = '';
+    } else if (costDisplay) {
+        costDisplay.style.display = 'none';
     }
     document.getElementById('stockQuantity').value = stockQuantity;
     document.getElementById('inventoryModal').style.display = 'block';

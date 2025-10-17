@@ -50,9 +50,9 @@ function getSummaryData() {
         $outOfStockItems = $outOfStockResult->fetch_assoc()['total'];
         
         // Total inventory value
-        $valueQuery = "SELECT SUM(mi.stock_quantity * m.price) as total_value 
-                       FROM menu_inventory mi 
-                       JOIN menu m ON mi.menu_id = m.id";
+    $valueQuery = "SELECT SUM(mi.stock_quantity * m.selling_price) as total_value 
+               FROM menu_inventory mi 
+               JOIN menu m ON mi.menu_id = m.id";
         $valueResult = $conn->query($valueQuery);
         $totalValue = $valueResult->fetch_assoc()['total_value'] ?? 0;
         
@@ -114,7 +114,7 @@ function getLowStockItems() {
     global $conn;
     
     try {
-        $query = "SELECT mi.id, mi.stock_quantity, m.name as menu_name, m.price as menu_price, m.category as menu_category
+    $query = "SELECT mi.id, mi.stock_quantity, m.name as menu_name, m.selling_price as menu_price, m.category as menu_category
                   FROM menu_inventory mi 
                   JOIN menu m ON mi.menu_id = m.id 
                   WHERE mi.stock_quantity <= 5

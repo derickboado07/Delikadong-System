@@ -46,7 +46,7 @@
           <div class="recipe-area">
             <div class="table-container">
               <table id="productsTable">
-                <thead><tr><th>Image</th><th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Image</th><th>ID</th><th>Name</th><th>Category</th><th>Selling Price</th><th>Actions</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -74,7 +74,8 @@
                     <option value="signature">Signature</option>
                   </select>
                 </label>
-                <label>Price <input id="productPrice" type="number" step="0.01" required /></label>
+                <label>Selling Price <input id="productPrice" type="number" step="0.01" required /></label>
+                <label>Cost Price <input id="productCostPrice" type="number" step="0.01" required value="0.00" /></label>
                 <label>Image <input id="productImage" type="file" accept="image/*" /></label>
                 <div class="modal-actions">
                   <button type="button" class="btn btn-secondary" id="cancelProduct">Cancel</button>

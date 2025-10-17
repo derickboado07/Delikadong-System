@@ -106,6 +106,7 @@ function clearProductForm(){
   document.getElementById('productName').value = '';
   document.getElementById('productCategory').value = '';
   document.getElementById('productPrice').value = '0';
+  const costEl = document.getElementById('productCostPrice'); if (costEl) costEl.value = '0.00';
   const fileInput = document.getElementById('productImage');
   if (fileInput) fileInput.value = '';
 }
@@ -122,7 +123,7 @@ async function loadProducts(){
     json.data.forEach(p=>{
       const imageSrc = p.image ? `../Images/${p.image}` : '../Images/Icon.png';
       const tr=document.createElement('tr');
-      tr.innerHTML = `<td><img src="${imageSrc}" alt="${p.name}" class="product-thumbnail" onerror="this.src='../Images/Icon.png'"></td><td>${p.id}</td><td>${p.name}</td><td>${p.category}</td><td>₱${parseFloat(p.price).toFixed(2)}</td><td><button class="btn btn-sm btn-primary btn-edit" data-id="${p.id}">Edit</button> <button class="btn btn-sm btn-danger btn-del" data-id="${p.id}">Delete</button></td>`;
+        tr.innerHTML = `<td><img src="${imageSrc}" alt="${p.name}" class="product-thumbnail" onerror="this.src='../Images/Icon.png'"></td><td>${p.id}</td><td>${p.name}</td><td>${p.category}</td><td>₱${parseFloat(p.price).toFixed(2)}</td><td><button class="btn btn-sm btn-primary btn-edit" data-id="${p.id}">Edit</button> <button class="btn btn-sm btn-danger btn-del" data-id="${p.id}">Delete</button></td>`;
       tbody.appendChild(tr);
     });
   } else { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c00">Error loading products</td></tr>' }
@@ -182,8 +183,22 @@ function populateCategoryFilter(){
 
 function openProductModal(mode='create', data=null){
   document.getElementById('productModal').setAttribute('aria-hidden','false');
-  if (mode==='create'){ document.getElementById('modalTitle').textContent='Add Product'; document.getElementById('productId').value=''; document.getElementById('productName').value=''; document.getElementById('productCategory').value=''; document.getElementById('productPrice').value='0'; }
-  else { document.getElementById('modalTitle').textContent='Edit Product'; document.getElementById('productId').value=data.id; document.getElementById('productName').value=data.name; document.getElementById('productCategory').value=data.category; document.getElementById('productPrice').value=data.price; }
+  if (mode==='create'){ 
+    document.getElementById('modalTitle').textContent='Add Product'; 
+    document.getElementById('productId').value=''; 
+    document.getElementById('productName').value=''; 
+    document.getElementById('productCategory').value=''; 
+    document.getElementById('productPrice').value='0'; 
+    const costEl = document.getElementById('productCostPrice'); if (costEl) costEl.value = '0.00';
+  }
+  else { 
+    document.getElementById('modalTitle').textContent='Edit Product'; 
+    document.getElementById('productId').value=data.id; 
+    document.getElementById('productName').value=data.name; 
+    document.getElementById('productCategory').value=data.category; 
+    document.getElementById('productPrice').value=data.price; 
+    const costEl = document.getElementById('productCostPrice'); if (costEl) costEl.value = (data.cost_price !== undefined ? parseFloat(data.cost_price).toFixed(2) : '0.00');
+  }
 }
 
 function closeProductModal(){ document.getElementById('productModal').setAttribute('aria-hidden','true'); }
@@ -204,11 +219,15 @@ async function saveProduct(e){
     fd.append('name', name);
     fd.append('category', category);
     fd.append('price', price);
+    const cost_price = parseFloat(document.getElementById('productCostPrice').value) || 0;
+    fd.append('cost_price', cost_price);
     fd.append('image', fileInput.files[0]);
     res = await fetch(url, { method: 'POST', body: fd });
     json = await res.json();
   } else {
     const payload = { name, category, price };
+    const cost_price = parseFloat(document.getElementById('productCostPrice').value) || 0;
+    payload.cost_price = cost_price;
     if (id) payload.id = id;
     res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'application/json'} });
     json = await res.json();

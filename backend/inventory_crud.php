@@ -90,7 +90,7 @@ function readInventoryItems() {
         
         if ($id) {
             // Get specific inventory item
-            $sql = "SELECT mi.*, m.name as menu_name, m.price as menu_price, m.category as menu_category 
+        $sql = "SELECT mi.*, m.name as menu_name, m.selling_price as menu_price, m.cost_price as menu_cost, m.category as menu_category 
                     FROM menu_inventory mi 
                     JOIN menu m ON mi.menu_id = m.id 
                     WHERE mi.id = ?";
@@ -98,7 +98,7 @@ function readInventoryItems() {
             $stmt->bind_param("i", $id);
         } else {
             // Get all inventory items
-            $sql = "SELECT mi.*, m.name as menu_name, m.price as menu_price, m.category as menu_category
+            $sql = "SELECT mi.*, m.name as menu_name, m.selling_price as menu_price, m.cost_price as menu_cost, m.category as menu_category
                 FROM menu_inventory mi
                 JOIN menu m ON mi.menu_id = m.id
                 ORDER BY m.name";
@@ -286,7 +286,8 @@ function getMenuItems() {
     global $conn;
 
     try {
-        $sql = "SELECT id, name, price, category FROM menu WHERE status = 'active' ORDER BY category, name";
+        // Return selling_price as price for compatibility and include cost_price
+        $sql = "SELECT id, name, selling_price as price, cost_price, category FROM menu WHERE (status IS NULL OR status = 'active') ORDER BY category, name";
         $result = $conn->query($sql);
 
         $data = [];

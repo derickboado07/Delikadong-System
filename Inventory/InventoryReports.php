@@ -104,7 +104,7 @@
                                     <th>Item Name</th>
                                     <th>Category</th>
                                     <th>Current Stock</th>
-                                    <th>Price</th>
+                                    <th>Selling Price</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
