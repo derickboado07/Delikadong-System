@@ -18,8 +18,8 @@
                 <div class="inventory-selector">
                     <label for="inventoryType">Select Inventory Type:</label>
                     <select id="inventoryType">
-                        <option value="external">External Inventory</option>
-                        <option value="internal">Internal Inventory</option>
+                        <option value="external">External</option>
+                        <option value="internal">Internal</option>
                     </select>
                 </div>
             </div>
