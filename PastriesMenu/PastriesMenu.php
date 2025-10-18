@@ -1,4 +1,11 @@
 <?php
+
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../LogIn/Users/user.php");
+    exit();
+}
+
 // PastriesMenu/PastriesMenu.php
 // Connect to DB
 include '../backend/db_connect.php'; // ensure $conn = mysqli_connect(...);
