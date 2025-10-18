@@ -62,6 +62,7 @@ $approvedUsers = $conn->query("
     <h2>Admin Panel</h2>
     <ul>
         <li><a href="#" class="active">Dashboard</a></li>
+        <li><a href="../../SalesDashboard/SalesReportPage.php">Sales Dashboard</a></li>
         <li><a href="edit_admin.php">Edit Admin Details</a></li>
         <li><a href="#" onclick="if(confirm('Logout?')){window.location.href='admin_logout.php';}">Logout</a></li>
     </ul>
