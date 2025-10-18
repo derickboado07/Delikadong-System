@@ -97,42 +97,41 @@ function renderItemOptions(item) {
     let optionsHTML = '';
     
     // Espresso & Signature Drinks (coffee category)
-    if (category === 'espresso' || category === 'signature' || category === 'coffee') {
-        if (item.size) {
-            optionsHTML += `<div class="item-option"><strong>Size:</strong> ${item.size}</div>`;
-        }
-        if (item.sugar_level) {
-            optionsHTML += `<div class="item-option"><strong>Sugar Level:</strong> ${item.sugar_level}</div>`;
-        }
-        if (item.addons && Array.isArray(item.addons) && item.addons.length > 0) {
+    // Show size and sugar info when available
+    if (item.size) {
+        optionsHTML += `<div class="item-option"><strong>Size:</strong> ${item.size}</div>`;
+    }
+    if (item.sugar_level) {
+        optionsHTML += `<div class="item-option"><strong>Sugar Level:</strong> ${item.sugar_level}</div>`;
+    }
+
+    // Always show add-ons if present (handle different category naming)
+    if (item.addons && Array.isArray(item.addons) && item.addons.length > 0) {
+        optionsHTML += `
+            <div class="item-option">
+                <strong>Add-ons:</strong> ${formatAddonsExtras(item.addons)}
+            </div>
+        `;
+    }
+
+    // Always show extras if present (be lenient about shape)
+    if (item.extras && Array.isArray(item.extras) && item.extras.length > 0) {
+        // Consider any non-empty object or string as valid
+        const validExtras = item.extras.filter(extra => {
+            if (!extra) return false;
+            if (typeof extra === 'string') return extra.trim().length > 0;
+            if (typeof extra === 'object') return Object.keys(extra).length > 0;
+            return false;
+        });
+        if (validExtras.length > 0) {
             optionsHTML += `
                 <div class="item-option">
-                    <strong>Add-ons:</strong> ${formatAddonsExtras(item.addons)}
+                    <strong>Extras:</strong> ${formatAddonsExtras(validExtras)}
                 </div>
             `;
         }
     }
-    
-    // Meals - FIXED: Properly handle extras
-    else if (category === 'meals' || category === 'meal') {
-        console.log("Meal item extras:", item.extras); // Debug log
-        
-        if (item.extras && Array.isArray(item.extras) && item.extras.length > 0) {
-            // Filter out empty extras
-            const validExtras = item.extras.filter(extra => 
-                extra && (typeof extra === 'string' || extra.name || extra.price)
-            );
-            
-            if (validExtras.length > 0) {
-                optionsHTML += `
-                    <div class="item-option">
-                        <strong>Extras:</strong> ${formatAddonsExtras(validExtras)}
-                    </div>
-                `;
-            }
-        }
-    }
-    
+
     return optionsHTML;
 }
 
@@ -142,23 +141,37 @@ function formatAddonsExtras(data) {
     }
     
     try {
-        return data.map(item => {
-            if (!item) return 'Unknown';
-            
-            if (typeof item === 'string') {
-                return item.trim() || 'Unknown';
+        const nameKeys = ['name','extraName','extra_name','label','title','description','option'];
+        const priceKeys = ['price','extraPrice','extra_price','cost','amount','value'];
+
+        const parts = data.map(item => {
+            if (!item) return null;
+            if (typeof item === 'string') return item.trim() || null;
+
+            // item is an object - try to extract name and price
+            let name = null;
+            for (const k of nameKeys) {
+                if (k in item && item[k]) { name = String(item[k]).trim(); break; }
             }
-            
-            if (item.name && item.price) {
-                return `${item.name} (+₱${parseFloat(item.price).toFixed(2)})`;
+
+            let price = null;
+            for (const k of priceKeys) {
+                if (k in item && item[k] !== null && item[k] !== undefined && item[k] !== '') {
+                    const p = parseFloat(item[k]);
+                    if (!isNaN(p)) { price = p; break; }
+                }
             }
-            
-            if (item.name) {
-                return item.name;
-            }
-            
-            return 'Unknown';
-        }).filter(item => item !== 'Unknown').join(', ');
+
+            if (name && price !== null) return `${name} (+₱${price.toFixed(2)})`;
+            if (name) return name;
+            if (price !== null) return `(+₱${price.toFixed(2)})`;
+
+            // Last resort: stringify object briefly
+            try { return Object.values(item).filter(v => v !== null && v !== undefined && String(v).trim() !== '').join(' / '); } catch(e) { return null; }
+        }).filter(Boolean);
+
+        if (parts.length === 0) return 'None';
+        return parts.join(', ');
     } catch (e) {
         console.error('Error formatting addons/extras:', e, data);
         return 'None';
