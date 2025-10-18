@@ -178,18 +178,29 @@ function handleUser(action, userId) {
 
 // ✅ Add Approved User Dynamically to Table
 function addUserToTable(user) {
-    const tbody = document.querySelector('#usersTable tbody');
+    // Use the approved users tbody (matches server-rendered table)
+    const tbody = document.getElementById('approvedUsersBody') || document.querySelector('#usersTable tbody');
     const row = document.createElement('tr');
     row.id = 'userRow' + user.user_id;
+
+    // Derive status text/class similar to server-side rendering
+    const statusText = (user.is_online == 1 || user.is_online === '1') ? 'Online' : 'Offline';
+    const statusClass = statusText.toLowerCase();
+
+    // Use time_in/time_out if available, otherwise show em-dash
+    const timeIn = user.time_in ? user.time_in : '—';
+    const timeOut = user.time_out ? user.time_out : '—';
+
     row.innerHTML = `
         <td>${user.user_id}</td>
         <td>${user.full_name}</td>
         <td>${user.username}</td>
         <td>${user.email}</td>
-        <td class="online">Approved</td>
-        <td>—</td>
-        <td>—</td>
+        <td class="${statusClass}">${statusText}</td>
+        <td>${timeIn}</td>
+        <td>${timeOut}</td>
         <td>
+            <a href="edit_user.php?id=${user.user_id}" class="edit-btn">Edit</a>
             <a href="remove_user.php?id=${user.user_id}" 
                class="remove-btn"
                onclick="return confirm('Are you sure you want to remove this user?');">
