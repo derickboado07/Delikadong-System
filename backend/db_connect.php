@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$database = "aratpoleasystem";
+$database = "arat_coffee_db";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
